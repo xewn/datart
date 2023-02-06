@@ -76,10 +76,10 @@ export function recommendTimeRangeConverter(relativeTimeRange, dateFormat?) {
       timeRange = getTimeRange([-90, 0], 'd')('d', dateFormat);
       break;
     case RECOMMEND_TIME.LAST_1_MONTH:
-      timeRange = getTimeRange()('M', dateFormat);
+      timeRange = getTimeRange([-1, 0], 'M')('d', dateFormat);
       break;
     case RECOMMEND_TIME.LAST_1_YEAR:
-      timeRange = getTimeRange()('y', dateFormat);
+      timeRange = getTimeRange([-1, 0], 'y')('d', dateFormat);
       break;
   }
 
