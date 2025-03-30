@@ -270,8 +270,9 @@ const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
                           style={{ width: 75 }}
                           value={dialogSizeConfig?.dialogSize?.weight}
                           placeholder={t('drillThrough.rule.dialogSizeConfig.widthRatio')}
-                          onChange={value => {
-                            const weight = Number(value);
+                          onBlur={e => {
+                            const v = e.target.value;
+                            const weight = Number(v);
                             if (!isNaN(weight) && weight > 0) {
                               handleViewDetailDialogSizeChange({
                                 dialogSize: {
@@ -309,13 +310,19 @@ const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
                           style={{ width: 75 }}
                           value={dialogSizeConfig.dialogSize?.height}
                           placeholder={t('drillThrough.rule.dialogSizeConfig.dialogHeight')}
-                          onChange={value => {
-                            const height = Number(value);
+                          onBlur={e => {
+                            const v = e.target.value;
+                            const height = Number(v);
                             if (!isNaN(height) && height > 0) {
+                              const dialogSize = dialogSizeConfig?.dialogSize;
                               handleViewDetailDialogSizeChange({
                                 dialogSize: {
-                                  ...dialogSizeConfig.dialogSize,
+                                  ...dialogSize,
                                   height,
+                                  contentHeight: Math.min(
+                                    dialogSize.contentHeight,
+                                    height,
+                                  ),
                                 },
                                 configType: InteractionDialogType.Customize,
                               });
@@ -348,7 +355,8 @@ const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
                           style={{ width: 75 }}
                           value={dialogSizeConfig.dialogSize?.contentHeight}
                           placeholder={t('drillThrough.rule.dialogSizeConfig.contentHeight')}
-                          onChange={value => {
+                          onBlur={e => {
+                            const value = e.target.value;
                             const contentHeight = Number(value);
                             const dialogHeight =
                               dialogSizeConfig.dialogSize?.height || 0;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Input, InputNumber, message, Radio, Select, Tooltip } from 'antd';
+import { InputNumber, message, Radio, Select, Tooltip } from 'antd';
 import { InteractionDialogType } from '../../constants';
 import { I18nTranslator } from './types';
 
@@ -67,7 +67,6 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
       contentHeight: 770,
     },
   };
-
   return (
     <div
       style={{
@@ -123,12 +122,12 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
       )}
       {value.configType === InteractionDialogType.Customize && (
         <>
-          <Tooltip placement="topLeft" title="弹窗宽度百分比">
+          <Tooltip placement="topLeft" title={t('drillThrough.rule.dialogSizeConfig.widthRatio')}>
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
               <InputNumber
                 style={{ width: 65 }}
                 value={value.dialogSize?.weight}
-                placeholder="宽度"
+                placeholder={t('drillThrough.rule.dialogSizeConfig.widthRatio')}
                 onBlur={e => {
                   const v = e.target.value;
                   const weight = Number(v);
@@ -145,7 +144,7 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
                       configType: InteractionDialogType.Customize,
                     });
                   } else {
-                    message.warn('请输入 1-100 的数字');
+                    message.warn(t('drillThrough.rule.dialogSizeConfig.widthTips'));
                   }
                 }}
               />
@@ -165,12 +164,12 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
               </span>
             </div>
           </Tooltip>
-          <Tooltip placement="topLeft" title="弹窗高度">
+          <Tooltip placement="topLeft" title={t('drillThrough.rule.dialogSizeConfig.dialogHeight')}>
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
               <InputNumber
                 style={{ width: 75 }}
                 value={value.dialogSize?.height}
-                placeholder="高度"
+                placeholder={t('drillThrough.rule.dialogSizeConfig.dialogHeight')}
                 onBlur={e => {
                   const v = e.target.value;
                   const height = Number(v);
@@ -188,7 +187,7 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
                       configType: InteractionDialogType.Customize,
                     });
                   } else {
-                    message.warn('高度必须为大于 0 的数字');
+                    message.warn(t('drillThrough.rule.dialogSizeConfig.heightTips'));
                   }
                 }}
               />
@@ -208,19 +207,19 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
               </span>
             </div>
           </Tooltip>
-          <Tooltip placement="topLeft" title="弹窗内框高度（仅对跳转地址方式生效）">
+          <Tooltip placement="topLeft" title={t('drillThrough.rule.dialogSizeConfig.contentHeight')}>
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
               <InputNumber
                 style={{ width: 75 }}
                 value={value.dialogSize?.contentHeight}
-                placeholder="内框高度"
+                placeholder={t('drillThrough.rule.dialogSizeConfig.contentHeight')}
                 onBlur={e => {
                   const v = e.target.value;
                   const contentHeight = Number(v);
                   const dialogHeight = value.dialogSize?.height || 0;
                   if (!isNaN(contentHeight) && contentHeight > 0) {
                     if (contentHeight > dialogHeight) {
-                      message.warn('内框高度不能超过弹窗高度');
+                      message.warn(t('drillThrough.rule.dialogSizeConfig.contentTips2'));
                     } else {
                       onRuleChange(recordId, 'dialogSize', {
                         dialogSize: {
@@ -231,7 +230,7 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
                       });
                     }
                   } else {
-                    message.warn('内框高度必须为大于 0 的数字');
+                    message.warn(t('drillThrough.rule.dialogSizeConfig.contentTips1'));
                   }
                 }}
               />
