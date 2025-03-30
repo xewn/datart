@@ -786,7 +786,24 @@
               "controller": "Controller"
             },
             "operation": {
-              "delete": "Delete"
+              "delete": "Delete",
+              "dialogSizeConfig": "DialogSizeConfig"
+            },
+            "dialogSizeConfig": {
+              "ratio": "Ratio",
+              "customize": "Customize",
+              "widthRatio": "widthRatio",
+              "dialogHeight": "dialogHeight",
+              "contentHeight": "contentHeight",
+              "widthTips": "The width must be a number greater than 0",
+              "heightTips": "The height must be a number greater than 0",
+              "contentTips1": "The height of the inner frame must be a number greater than 0",
+              "contentTips2": "The height of the inner frame cannot exceed the height of the pop-up window",
+              "ratioType": {
+                "small": "small",
+                "middle": "middle",
+                "big": "big"
+              }
             }
           }
         },
@@ -799,7 +816,8 @@
           "all": "All",
           "customize": "Customize",
           "summary": "Summary",
-          "details": "Details"
+          "details": "Details",
+          "dialogSizeConfig": "DialogSizeConfig"
         }
       },
       "present": {

@@ -16,20 +16,17 @@
  * limitations under the License.
  */
 
-import { Button, Input, Select, Table } from 'antd';
+import { Button, Dropdown, Form, Input, Select, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import ChartDataView from 'app/types/ChartDataView';
-import { FC } from 'react';
-import styled from 'styled-components/macro';
-import {
-  InteractionAction,
-  InteractionCategory,
-  InteractionMouseEvent,
-} from '../../constants';
+import { FC, useState } from 'react';
+import { InteractionAction, InteractionCategory, InteractionDialogType, InteractionMouseEvent } from '../../constants';
 import JumpToChart from './JumpToChart';
 import JumpToDashboard from './JumpToDashboard';
 import JumpToUrl from './JumpToUrl';
 import { I18nTranslator, InteractionRule, VizType } from './types';
+import DialogSizeConfigDrillThrough from './DialogSizeConfigDrillThrough';
+import styled from 'styled-components/macro';
 
 const RuleList: FC<
   {
@@ -41,6 +38,16 @@ const RuleList: FC<
   } & I18nTranslator
 > = ({ rules, vizs, dataview, onRuleChange, onDeleteRule, translate: t }) => {
   const tableColumnStyle = { width: '150px' };
+  const [dropdownVisibleMap, setDropdownVisibleMap] = useState<
+    Record<string, boolean>
+  >({});
+
+  const toggleDropdownVisible = (id: string, visible: boolean) => {
+    setDropdownVisibleMap(prev => ({
+      ...prev,
+      [id]: visible,
+    }));
+  };
 
   const columns: ColumnsType<InteractionRule> = [
     {
@@ -150,12 +157,52 @@ const RuleList: FC<
     {
       title: t('drillThrough.rule.header.operation'),
       key: 'operation',
+      dataIndex: 'dialogSize',
       width: 50,
       fixed: 'right',
-      render: (_, record) => (
-        <Button type="link" onClick={() => onDeleteRule(record.id)}>
-          {t('drillThrough.rule.operation.delete')}
-        </Button>
+      render: (value, record) => (
+        <>
+          <Dropdown
+            trigger={['click']}
+            visible={dropdownVisibleMap[record.id] || false}
+            onVisibleChange={visible =>
+              toggleDropdownVisible(record.id, visible)
+            }
+            disabled={record.action !== InteractionAction.Dialog}
+            overlay={() => (
+              <Form style={{ width: 440 }}>
+                <DialogSizeConfigDrillThrough
+                  value={
+                    value
+                      ? value
+                      : {
+                        configType: InteractionDialogType.Ratio,
+                        dialogSize: {
+                          weight: 80,
+                          height: 600,
+                          contentHeight: 600,
+                        },
+                      }
+                  }
+
+                  recordId={record.id}
+                  onRuleChange={onRuleChange}
+                  translate={t}
+                />
+              </Form>
+            )}
+            placement={'bottomLeft'}
+            arrow>
+            <Button type={'link'}>
+              {t('drillThrough.rule.operation.dialogSizeConfig')}
+            </Button>
+          </Dropdown>
+          <Button
+            type={'link'}
+            onClick={() => onDeleteRule(record.id)}>
+            {t('drillThrough.rule.operation.delete')}
+          </Button>
+        </>
       ),
     },
   ];

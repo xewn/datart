@@ -220,10 +220,16 @@ const useChartInteractions = (props: {
                 openBrowserTab(orgId, relId, urlFiltersStr);
               }
               if (rule?.action === InteractionAction.Dialog) {
+                const dialogSize = rule?.dialogSize?.dialogSize || {
+                  width: 80,
+                  height: 600,
+                  contentHeight: 600,
+                };
                 const modalContent = getDialogContent(
                   orgId,
                   relId,
                   'DATACHART',
+                  dialogSize,
                   urlFiltersStr,
                 );
                 props?.openJumpVizDialogModal?.(modalContent as any);
@@ -248,10 +254,16 @@ const useChartInteractions = (props: {
                 openBrowserTab(orgId, relId, urlFiltersStr);
               }
               if (rule?.action === InteractionAction.Dialog) {
+                const dialogSize = rule?.dialogSize?.dialogSize || {
+                  width: 80,
+                  height: 600,
+                  contentHeight: 600,
+                };
                 const modalContent = getDialogContent(
                   orgId,
                   relId,
                   'DASHBOARD',
+                  dialogSize,
                   urlFiltersStr,
                 );
                 props?.openJumpVizDialogModal?.(modalContent as any);
@@ -277,7 +289,17 @@ const useChartInteractions = (props: {
                 openNewByUrl(url, urlFiltersStr);
               }
               if (rule?.action === InteractionAction.Dialog) {
-                const modalContent = getDialogContentByUrl(url, urlFiltersStr);
+                const dialogSize = rule?.dialogSize?.dialogSize || {
+                  width: 80,
+                  height: 600,
+                  contentHeight: 600,
+                };
+                const modalContent = getDialogContentByUrl(
+                  url,
+                  dialogSize,
+                  urlFiltersStr,
+                );
+
                 props?.openJumpUrlDialogModal?.(modalContent as any);
               }
             }

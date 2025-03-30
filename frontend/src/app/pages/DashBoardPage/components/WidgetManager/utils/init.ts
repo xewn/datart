@@ -172,6 +172,23 @@ export const InteractionI18N = {
         },
         operation: {
           delete: '删除',
+          dialogSizeConfig: '屏占比配置',
+        },
+        dialogSizeConfig: {
+          ratio: '按比例',
+          customize: '自定义',
+          widthRatio: '宽度占比',
+          dialogHeight: '弹窗高度',
+          contentHeight: '弹窗内窗高度',
+          widthTips: '宽度必须为大于 0 的数字',
+          heightTips: '高度必须为大于 0 的数字',
+          contentTips1: '内框高度必须为大于 0 的数字',
+          contentTips2: '内框高度不能超过弹窗高度',
+          ratioType: {
+            small: '较小',
+            middle: '中等',
+            big: '较大',
+          },
         },
       },
     },
@@ -204,6 +221,7 @@ export const InteractionI18N = {
       customize: '自定义',
       summary: '汇总',
       details: '明细',
+      dialogSizeConfig: '屏占比配置',
     },
   },
   en: {

@@ -26,6 +26,7 @@ import { ItemLayoutProps } from '../../types';
 import { itemLayoutComparer } from '../../utils';
 import RuleList from './RuleList';
 import { DrillThroughSetting, InteractionRule } from './types';
+import { InteractionDialogType } from '../../constants';
 
 const DrillThroughPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
   ({ ancestors, translate: t = title => title, data, onChange, context }) => {
@@ -37,6 +38,14 @@ const DrillThroughPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
       const newRules = (drillThroughRules || []).concat([
         {
           id: uuidv4(),
+          dialogSize: {
+            configType: InteractionDialogType.Ratio,
+            dialogSize: {
+              weight: 80,
+              height: 600,
+              contentHeight: 600,
+            },
+          },
         },
       ]);
       handleDrillThroughSettingChange(newRules);
@@ -72,12 +81,7 @@ const DrillThroughPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
 
     return (
       <StyledDrillThroughPanel direction="vertical">
-        <Form
-          labelCol={{ offset: 2, span: 2 }}
-          wrapperCol={{ span: 18 }}
-          layout="horizontal"
-          size="middle"
-        >
+        <Form labelCol={{ span: 24 }} size="middle">
           <Form.Item
             label={t('drillThrough.rule.title')}
             name="rule"

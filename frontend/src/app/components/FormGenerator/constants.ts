@@ -56,3 +56,8 @@ export enum InteractionFieldMapper {
   All = 'all',
   Customize = 'customize',
 }
+
+export enum InteractionDialogType {
+  Ratio = 'ratio',
+  Customize = 'customize',
+}

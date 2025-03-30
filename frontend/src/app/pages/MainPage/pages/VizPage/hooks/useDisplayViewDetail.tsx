@@ -155,13 +155,27 @@ const useDisplayViewDetail = () => {
       .buildDetails();
   };
 
+  const defaultDialogSize = {
+    weight: 80,
+    height: 600,
+    contentHeight: 600,
+  };
+
   const openModal = (props: DisplayViewDetailProps) => {
+    const dialogSize =
+      props?.viewDetailSetting?.dialogSize?.dialogSize || defaultDialogSize;
     return (openStateModal as Function)({
-      modalSize: StateModalSize.MIDDLE,
+      modalSize: window.innerWidth * dialogSize.weight / 100,
+      bodyStyle: {
+        height: dialogSize.height,
+      },
       content: () => {
         return (
-          <StyledTabs defaultActiveKey="summary">
-            <TabPane tab={t('summary')} key="summary">
+          <StyledTabs
+            defaultActiveKey="summary"
+            style={{ height: dialogSize.contentHeight }}
+          >
+          <TabPane tab={t('summary')} key="summary">
               <TemplateTable
                 chartConfig={props?.chartConfig}
                 token={props.authToken}

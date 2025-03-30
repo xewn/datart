@@ -17,6 +17,7 @@
  */
 
 import { useHistory } from 'react-router-dom';
+import { DialogSize } from '../components/FormGenerator/Customize/Interaction/types';
 
 const defaultBodyStyle: React.CSSProperties = {
   height: 600,
@@ -54,12 +55,13 @@ const useDrillThrough = () => {
     window.open(url, url);
   };
 
-  const getDialogContent = (orgId, relId, vizType, params?: string) => {
+  const getDialogContent = (orgId, relId, vizType, dialogSize: DialogSize, params?: string) => {
     return {
       orgId,
       vizId: relId,
       vizType,
       params,
+      dialogSize,
     };
   };
 
@@ -72,15 +74,23 @@ const useDrillThrough = () => {
     window.open(finalUrl, finalUrl);
   };
 
-  const getDialogContentByUrl = (url, params?: string) => {
+  const getDialogContentByUrl = (
+    url,
+    dialogSize: DialogSize,
+    params?: string,
+  ) => {
     const finalUrl = appendUrlParams(url, params);
+    const width = `${dialogSize.weight}%`;
     return {
-      width: '80%',
-      bodyStyle: defaultBodyStyle,
+      width: width,
+      bodyStyle: {
+        ...defaultBodyStyle,
+        height: dialogSize.height,
+      },
       content: (
         <iframe
           title="Datart Iframe Window"
-          height={600}
+          height={dialogSize.contentHeight}
           width="100%"
           frameBorder="none"
           src={finalUrl}

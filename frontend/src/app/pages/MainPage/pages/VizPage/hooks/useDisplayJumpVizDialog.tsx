@@ -16,17 +16,22 @@
  * limitations under the License.
  */
 
-import useStateModal, { StateModalSize } from 'app/hooks/useStateModal';
+import useStateModal from 'app/hooks/useStateModal';
 import { VizContainer } from '../Main/VizContainer';
 
 const useDisplayJumpVizDialog = () => {
   const [openStateModal, contextHolder] = useStateModal({});
-
-  const openJumpVizDialogModal = ({ orgId, vizId, vizType, params }) => {
+  const defaultDialogSize = {
+    weight: 80,
+    height: 600,
+    contentHeight: 600,
+  };
+  const openJumpVizDialogModal = ({ orgId, vizId, vizType, params, dialogSize }) => {
+    const ds = dialogSize || defaultDialogSize;
     return (openStateModal as Function)({
-      modalSize: StateModalSize.MIDDLE,
+      modalSize: window.innerWidth * dialogSize.weight / 100,
       content: () => (
-        <div style={{ height: 600 }}>
+        <div style={{ height: ds.height }}>
           <VizContainer
             tab={{ id: vizId, type: vizType, search: params } as any}
             orgId={orgId}

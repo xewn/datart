@@ -19,6 +19,7 @@
 import {
   InteractionAction,
   InteractionCategory,
+  InteractionDialogType,
   InteractionFieldMapper,
   InteractionFieldRelation,
   InteractionMouseEvent,
@@ -68,6 +69,7 @@ export type InteractionRule = {
   [InteractionCategory.JumpToChart]?: JumpToChartRule;
   [InteractionCategory.JumpToDashboard]?: JumpToDashboardRule;
   [InteractionCategory.JumpToUrl]?: JumpToUrlRule;
+  dialogSize?: DialogSizeConfig;
 };
 
 export type CrossFilteringInteractionRule = {
@@ -91,4 +93,16 @@ export type ViewDetailSetting = {
   event: InteractionMouseEvent;
   mapper?: InteractionFieldMapper;
   [InteractionFieldMapper.Customize]?: any[];
+  dialogSize?: DialogSizeConfig;
+};
+
+export type DialogSizeConfig = {
+  configType: InteractionDialogType;
+  dialogSize: DialogSize;
+};
+
+export type DialogSize = {
+  weight: number;
+  height: number;
+  contentHeight: number;
 };
