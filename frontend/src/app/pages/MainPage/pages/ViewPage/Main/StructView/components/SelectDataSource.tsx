@@ -268,11 +268,15 @@ const SelectDataSource = memo(
         });
       }
 
-      if (type === 'JOINS' && joinTable?.table) {
-        setSelectedTableSchema({
-          table: joinTable['table'],
-          columns: joinTable['columns'],
-        });
+      if (type === 'JOINS') {
+        if (joinTable?.table) {
+          setSelectedTableSchema({
+            table: joinTable.table,
+            columns: joinTable.columns,
+          });
+        } else {
+          setSelectedTableSchema(null);
+        }
       }
     }, [structure, type, joinTable, sources, sourceId]);
 
