@@ -20,7 +20,7 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | #2368 | Reset removed join table state | `6b3f35d11dbe443a84220ef4b9397b08502e5ff0` | master | direct | `7d9b9b8e`, test `d03a2ca9` | focused component tests; full frontend/Maven gates passed | Focused stale-state fix. |
 | #2366 | Dashboard jump date parameter | `7f17c3ff2fd25caa6cd06052c95d594058587d72` | dev | absorbed | `a25e4e53` via #2350 | focused date tests; full frontend/Maven gates passed | Duplicate of the later null-safe date-controller implementation. |
-| #2365 | Custom dashboard dialog sizing | `98cd750a9dd22e83814b0cd724d0f4e768fbb8f1` | dev | adapted | pending Batch 4 | pending Batch 4 | Feature is useful, but the branch contains temporary commits, generated H2 data, local config, lock churn, and default-value defects. |
+| #2365 | Custom dashboard dialog sizing | `98cd750a9dd22e83814b0cd724d0f4e768fbb8f1` | dev | adapted | `829e6898`, `c19465cc`, `b2016ca5` | focused normalization tests; full frontend/Maven gates passed | Extracted the feature while excluding branch debris, then centralized bounds/default normalization. |
 | #2360 | Druid connection recovery defaults | `fe0e8c8e5b3b7a30fa03aeadd5a757665d3d825e` | dev | direct | `70552639`, test `c7887cc6` | focused regression; full test/package passed | Focused recovery behavior with testable configuration. |
 | #2359 | Skip archived sources in schema sync | `ce8fb90c7825b0dfcf278d412d01e114ca833648` | dev | direct | `c91458d5`, test `69920ba0` | focused regression; full test/package passed | Prevents unnecessary jobs for archived sources. |
 | #2356 | Refresh cached JDBC provider after source update | `7244f9317853652963b157858af2cfe27d69fcfc` | dev | adapted | `6015cae3` | focused concurrency tests; full test/package passed | Required for multi-node consistency, with atomic replacement and lifecycle coverage added. |
@@ -31,16 +31,16 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #2313 | Guard missing BasicTable row | `f7dbe0f7dc7c794119597f0af549bd4a37186018` | dev | direct | `bd5b9026`, test `a1a57c39` | focused table tests; full frontend/Maven gates passed | Prevents a missing row from entering the render loop. |
 | #2309 | URL date controller fix | `c7659846d8e229435da5db1d360f60851cd54847` | dev | absorbed | `a25e4e53` via #2350 | focused date tests; full frontend/Maven gates passed | Superseded by the later optional-access date fix. |
 | #2305 | Add OpenSSL option with Unix export | `f393b298294e4a4a4d97542787db9a93c38c406a` | master | rejected | not applicable | source review | Unix-only `export` breaks Windows and is unnecessary for the pinned Node 16 runtime. |
-| #2287 | Custom table and pivot sorting | `337b3ac26d255e187a252bb41c11902bb228a014` | master | adapted | pending Batch 4 | pending Batch 4 | Cross-layer feature needs request, SQL, migration, and UI coverage. |
+| #2287 | Custom table and pivot sorting | `337b3ac26d255e187a252bb41c11902bb228a014` | master | adapted | `4cb141a2`, `d3658978` | focused request/SQL tests; full frontend/Maven gates passed | Uses Calcite CASE nodes, escaped literals, deduplicated values, and a deterministic unknown-value fallback. |
 | #2283 | Column permission fixes | `fe6bfbc51865fabd44e36f41525259b0bb35d21a` | master | adapted | `74a1f1b4` | focused permission tests; full test/package passed | Upstream review requested changes; permission matching must avoid unsafe sentinels and regex injection. |
 | #2277 | COUNT DISTINCT ordering | `145c0557d9523fa64d1f68fff0ba4f7d92e3ae34` | dev | direct | `e221d36d`, test `0e8fd5de` | focused SQL test; full test/package passed | Focused SQL rendering correction. |
 | #2263 | Trim CSV values before formatting | `35c5d727ce61aac050489bd58d7e59edebbc17e3` | dev | direct | `47636d41`, test `798eab89` | focused parser tests; full test/package passed | Focused parser behavior with whitespace regression tests. |
 | #2261 | Show the added Story page | `0faca75ea799bebf8c239fce5e35c7e8a28aa88d` | dev | direct | `22c98b9e`, `baf0910e`, test `a1d709b3` | focused modal test; full frontend/Maven gates passed | Preserves the two official commits and adds regression coverage for existing-page selection. |
 | #2236 | Docker Compose and build layout | `6064f28d687a858a2f394bf48bca4fadb798ba03` | dev | adapted | pending Batch 5 | pending Batch 5 | Build and image references require current validation without changing assembly semantics. |
-| #2203 | Dashboard custom button widget | `bce86d2495848058c4a98840114700b7ecd6505c` | dev | adapted | pending Batch 4 | pending Batch 4 | Feature needs migration, serialization, navigation, and accessibility coverage. |
+| #2203 | Dashboard custom button widget | `bce86d2495848058c4a98840114700b7ecd6505c` | dev | adapted | `9a9b0451`, `b126fba2` | focused navigation tests; full frontend/Maven gates passed | Added a first-class widget with normalized navigation, empty-target safety, localization, and accessible naming. |
 | #2198 | Shared chart event refresh | `60815c73df40a9722e3386cb9010a10ccd1bf476` | master | adapted | `eeda2414` | focused hook lifecycle test; full frontend/Maven gates passed | Mount-only replacement needs stable registration and cleanup. |
 | #2196 | Restore date-level computed fields | `f90068338676e201939cc410dac817deff80dfa1` | master | direct | `c3252b54`, test `03c62689` | focused thunk tests; full frontend/Maven gates passed | Focused backend-chart conversion behavior. |
-| #2192 | BigQuery aggregate aliases and adapter | `b381d4b564718b14680c05dc14953551e88fe5c1` | master | adapted | pending Batch 4 | pending Batch 4 | Global alias changes must become dialect-aware. |
+| #2192 | BigQuery aggregate aliases and adapter | `b381d4b564718b14680c05dc14953551e88fe5c1` | master | adapted | `fcd4909b` | focused adapter tests; full frontend/Maven gates passed | Keeps temporary aggregate aliases dialect-scoped and restores returned dataframe metadata. |
 | #2189 | Batch query variables by view IDs | `bd94783c613c27ef6b3eb4a7ca2d04b6abcb71f0` | dev | adapted | `f045e093` | focused service tests; full test/package passed | Batch query needs an empty-set guard and deterministic coverage. |
 | #2172 | Empty merge PR | `f622bdb5794c6f2ba92386dfceaeaa469af4f2a2` | master | rejected | not applicable | source review | PR changes zero files and has no behavior to adopt. |
 | #2170 | Variables passed through SQL functions | `da5338edcc18bacb66a8a0daf88db7702650d439` | dev | adapted | `2ff47187` | focused resolver tests; full test/package passed | Upstream regex is over-broad and needs narrow parser tests. |
@@ -53,6 +53,20 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #1816 | Disallow negative grid values | `901a8c42cfffb0f433217d4fdf8eb07a49d41c42` | dev | rejected | not applicable | source review | Negative grid values are valid existing behavior and no product rule justifies removal. |
 
 Disposition totals: 10 direct, 17 adapted, 3 absorbed, and 3 rejected.
+
+## Batch 4 Cross-Layer Features
+
+- Integrated #2192, #2365, #2287, and #2203 as 8 provenance-preserving feature/fix commits plus formatting commit `4b33cd80`.
+- Focused backend gate: BigQuery adapter and custom-order SQL suites passed 4 tests with zero failures, errors, or skips.
+- Focused frontend gate: 3 Jest suites and 29 tests passed with zero failures, errors, or skips.
+- Frontend type gate: `npm run checkTs` exited 0 under Node 16.20.2 and npm 8.19.4.
+- Full Jest gate: 91 suites passed; 680 tests passed, 5 skipped, 685 total; 5 snapshots passed.
+- Frontend production gate: `npm run build:all` exited 0, and the Maven-bound production build passed again after the formatting cleanup.
+- Full repository test gate: `mvn test` exited 0 under Java 8 and Node 16. Surefire recorded 34 tests, with 33 passed, 1 existing skip, zero failures, and zero errors.
+- Package gate: offline `mvn -DskipTests package` exited 0.
+- Install artifact: `datart-server-1.0.0-rc.3-install.zip` is 169,890,218 bytes with SHA-256 `85DA6384E0E7DFECAFC34C6C270767E3FEB0663C8DBB003A15341E9ADB4210F3`.
+- Environment note: a diagnostic Maven attempt picked system Node 24 and reproduced the baseline Webpack/OpenSSL incompatibility; the verified gates explicitly used Node 16.
+- Repository hygiene: generated `frontend/package-lock.json` drift was restored, build outputs remain ignored, and the tracked worktree was clean before evidence updates.
 
 ## Batch 3 Story and Pivot Features
 
