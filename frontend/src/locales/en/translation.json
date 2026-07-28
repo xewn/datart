@@ -262,6 +262,10 @@
           "MAX": "Max",
           "MIN": "Min"
         },
+        "advanceCalc": {
+          "none": "None",
+          "dateRatio": "Period Comparison"
+        },
         "controllerFacadeTypes": {
           "dropdownList": "Dropdown List",
           "radioGroup": "Radio Group",
@@ -631,6 +635,17 @@
         "AGG_DATE_WEEK": "Week",
         "AGG_DATE_DAY": "Day",
         "drillable": "Drillable",
+        "dateRatio": {
+          "field": "Date Field",
+          "dimension": "Date Level",
+          "ratioType": "Comparison Period",
+          "valueType": "Result",
+          "ratioLast": "Previous Period",
+          "ratioYear": "Previous Year",
+          "diff": "Difference",
+          "percent": "Percentage Change",
+          "select": "Reference Period"
+        },
         "actions": {
           "sort": {
             "title": "Sort",
@@ -683,6 +698,7 @@
             "format": "Format",
             "aggregate": "Aggregate",
             "aggregateLimit": "Aggregate",
+            "advanceCalc": "Advanced Calculation",
             "filter": "Filter",
             "categoryFilter": "Category Filter",
             "colorize": "Colorize",
@@ -690,7 +706,8 @@
             "colorSingle": "Colorize",
             "size": "Size",
             "chooseTheme": "Choose Theme",
-            "dateLevel": "Date Level"
+            "dateLevel": "Date Level",
+            "dateRatio": "Period Comparison"
           }
         }
       },

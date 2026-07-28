@@ -29,6 +29,7 @@ import { ChartDataSectionField } from 'app/types/ChartConfig';
 import { ChartDataConfigSectionProps } from 'app/types/ChartDataConfigSection';
 import { ChartDataViewMeta } from 'app/types/ChartDataViewMeta';
 import { FC } from 'react';
+import AdvanceCalcAction from '../ChartFieldAction/AdvanceCalcAction';
 import AggregationAction from '../ChartFieldAction/AggregationAction';
 import AggregationLimitAction from '../ChartFieldAction/AggregationLimitAction';
 import DateLevelAction from '../ChartFieldAction/DateLevelAction/DateLevelAction';
@@ -180,6 +181,20 @@ const ChartDataConfigSectionActionMenu: FC<
         />
       );
     }
+    if (actionName === ChartDataSectionFieldActionType.AdvanceCalc) {
+      return (
+        <AdvanceCalcAction
+          uid={uid}
+          config={fieldConfig}
+          metas={metas}
+          availableSourceFunctions={availableSourceFunctions}
+          onOpenModal={onOpenModal}
+          onConfigChange={(config, needRefresh) => {
+            handleFieldConfigChanged(uid, config, needRefresh);
+          }}
+        />
+      );
+    }
   };
 
   return (
@@ -206,5 +221,6 @@ const subMenuAction = [
   ChartDataSectionFieldActionType.Aggregate,
   ChartDataSectionFieldActionType.AggregateLimit,
   ChartDataSectionFieldActionType.DateLevel,
+  ChartDataSectionFieldActionType.AdvanceCalc,
 ];
 export default ChartDataConfigSectionActionMenu;

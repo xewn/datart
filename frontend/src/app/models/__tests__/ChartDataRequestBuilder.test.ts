@@ -161,6 +161,64 @@ describe('ChartDataRequestBuild Test', () => {
     ]);
   });
 
+  test('should preserve independent advanced calculations in aggregators', () => {
+    const dataView = { id: 'view-id' } as any;
+    const baseField = {
+      colName: 'amount',
+      aggregate: AggregateFieldActionType.Sum,
+      type: DataViewFieldType.NUMERIC,
+      category: ChartDataViewFieldCategory.Field as any,
+    };
+    const chartDataConfigs = [
+      {
+        type: ChartDataSectionType.Aggregate,
+        key: 'aggregation',
+        rows: [
+          {
+            ...baseField,
+            calc: {
+              key: 'month-ratio',
+              type: 'dateRatio',
+              config: { ratioType: 'last', valueType: 'percent' },
+            },
+          },
+          {
+            ...baseField,
+            calc: {
+              key: 'year-ratio',
+              type: 'dateRatio',
+              config: { ratioType: 'year', valueType: 'percent' },
+            },
+          },
+        ],
+      },
+    ] as any;
+
+    const request = new ChartDataRequestBuilder(
+      dataView,
+      chartDataConfigs,
+      [],
+      {},
+      false,
+      true,
+    ).build();
+
+    expect(request.aggregators).toEqual([
+      {
+        alias: 'SUM(amount)-month-ratio',
+        column: ['amount'],
+        sqlOperator: 'SUM',
+        calc: chartDataConfigs[0].rows[0].calc,
+      },
+      {
+        alias: 'SUM(amount)-year-ratio',
+        column: ['amount'],
+        sqlOperator: 'SUM',
+        calc: chartDataConfigs[0].rows[1].calc,
+      },
+    ]);
+  });
+
   test('should get aggregators with enabled aggregation for struct view', () => {
     const dataView = {
       id: 'view-id',

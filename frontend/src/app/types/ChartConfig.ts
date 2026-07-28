@@ -17,6 +17,7 @@
  */
 
 import {
+  AdvanceCalcFieldActionType,
   AggregateFieldActionType,
   ChartDataSectionFieldActionType,
   ChartDataSectionType,
@@ -26,6 +27,8 @@ import {
   ControllerVisibilityTypes,
   DataViewFieldType,
   DateFormat,
+  DateRatioType,
+  DateRatioValueType,
   FieldFormatType,
   FilterConditionType,
   FilterRelationType,
@@ -116,11 +119,24 @@ export type ChartDataSectionField = {
   alias?: AliasFieldAction;
   format?: FormatFieldAction;
   aggregate?: AggregateFieldActionType;
+  calc?: AdvanceCalcFieldAction;
   filter?: FilterFieldAction;
   color?: ColorFieldAction;
   size?: number;
   path?: string[];
   dateFormat?: DateFormat;
+};
+
+export type AdvanceCalcFieldAction = {
+  key: string;
+  type: AdvanceCalcFieldActionType;
+  config?: {
+    column?: string[];
+    snippet?: string;
+    select?: string;
+    ratioType?: DateRatioType;
+    valueType?: DateRatioValueType;
+  };
 };
 
 export type SortFieldAction = {

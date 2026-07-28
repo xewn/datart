@@ -1035,6 +1035,14 @@ describe('Chart Helper ', () => {
         },
         'SUM(c)',
       ],
+      [
+        {
+          aggregate: 'SUM',
+          colName: 'c',
+          calc: { key: 'ratio-1' },
+        },
+        'SUM(c)-ratio-1',
+      ],
     ])('getValueByColumnKey Test - ', (config, expected) => {
       test(`Get column key by data config`, () => {
         expect(getValueByColumnKey(config)).toEqual(expected);

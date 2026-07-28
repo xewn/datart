@@ -262,6 +262,10 @@
           "MAX": "最大值",
           "MIN": "最小值"
         },
+        "advanceCalc": {
+          "none": "无",
+          "dateRatio": "同比/环比"
+        },
         "controllerFacadeTypes": {
           "dropdownList": "下拉列表",
           "radioGroup": "单选按钮",
@@ -629,6 +633,17 @@
         "AGG_DATE_WEEK": "按周",
         "AGG_DATE_DAY": "按日",
         "drillable": "可钻取",
+        "dateRatio": {
+          "field": "日期字段",
+          "dimension": "日期级别",
+          "ratioType": "对比周期",
+          "valueType": "计算结果",
+          "ratioLast": "上一周期",
+          "ratioYear": "去年同期",
+          "diff": "差值",
+          "percent": "变化率",
+          "select": "基准周期"
+        },
         "actions": {
           "sort": {
             "title": "排序",
@@ -681,6 +696,7 @@
             "format": "格式",
             "aggregate": "聚合",
             "aggregateLimit": "聚合",
+            "advanceCalc": "高级计算",
             "filter": "过滤",
             "categoryFilter": "类别过滤",
             "colorize": "着色",
@@ -688,7 +704,8 @@
             "colorSingle": "着色",
             "size": "大小",
             "chooseTheme": "选择主题",
-            "dateLevel": "日期级别"
+            "dateLevel": "日期级别",
+            "dateRatio": "同比/环比"
           }
         }
       },

@@ -17,6 +17,7 @@
  */
 
 import { AggregateFieldActionType, SortActionType } from 'app/constants';
+import { AdvanceCalcFieldAction } from 'app/types/ChartConfig';
 import { ChartDatasetPageInfo } from 'app/types/ChartDataSet';
 
 export type ChartDataRequestFilter = {
@@ -41,7 +42,12 @@ export type PendingChartDataRequestFilter = {
 
 export type ChartDataRequest = {
   viewId: string;
-  aggregators: Array<{ column: string[]; sqlOperator: string }>;
+  aggregators: Array<{
+    alias?: string;
+    column: string[];
+    sqlOperator: string;
+    calc?: AdvanceCalcFieldAction;
+  }>;
   expired?: number;
   filters: ChartDataRequestFilter[];
   flush?: boolean;

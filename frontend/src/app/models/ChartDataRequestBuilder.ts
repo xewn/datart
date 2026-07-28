@@ -162,18 +162,22 @@ export class ChartDataRequestBuilder {
         alias: this.buildAliasName(aggCol),
         column: this.buildColumnName(aggCol),
         sqlOperator: aggCol.aggregate!,
+        calc: aggCol.calc,
       })),
       (a, b) =>
-        isEqualObject(a.column, b.column) && a.sqlOperator === b.sqlOperator,
+        isEqualObject(a.column, b.column) &&
+        a.sqlOperator === b.sqlOperator &&
+        isEqualObject(a.calc, b.calc),
     );
   }
 
-  private buildAliasName(c) {
+  private buildAliasName(c: ChartDataSectionField) {
     if (c.aggregate === AggregateFieldActionType.None) {
       return c.colName;
     }
     if (c.aggregate) {
-      return `${c.aggregate}(${c.colName})`;
+      const aggregateAlias = `${c.aggregate}(${c.colName})`;
+      return c.calc?.key ? `${aggregateAlias}-${c.calc.key}` : aggregateAlias;
     }
     return c.colName;
   }

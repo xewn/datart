@@ -1088,6 +1088,7 @@ export function transformToObjectArray(
 export function getValueByColumnKey(field?: {
   aggregate?;
   colName: string;
+  calc?: { key?: string };
 }): string {
   if (!field) {
     return '';
@@ -1095,7 +1096,8 @@ export function getValueByColumnKey(field?: {
   if (!field.aggregate) {
     return field.colName;
   }
-  return `${field.aggregate}(${field.colName})`;
+  const aggregateKey = `${field.aggregate}(${field.colName})`;
+  return field.calc?.key ? `${aggregateKey}-${field.calc.key}` : aggregateKey;
 }
 
 /**

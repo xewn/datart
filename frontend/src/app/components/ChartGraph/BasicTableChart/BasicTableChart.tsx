@@ -384,7 +384,7 @@ class BasicTableChart extends ReactChart {
             const currentSummaryField = aggregateFieldConfigs.find(
               c => chartDataSet.getFieldKey(c) === k,
             );
-            if (currentSummaryField) {
+            if (currentSummaryField && !currentSummaryField.calc) {
               const total = chartDataSet?.map((dc: any) =>
                 dc.getCell(currentSummaryField),
               );
@@ -513,13 +513,16 @@ class BasicTableChart extends ReactChart {
           headerFont?.fontSize,
           headerFont?.fontFamily,
         );
-        const currentSummaryField = aggregateConfigs.find(
-          ac => ac.uid === c.uid,
-        );
-        const total = chartDataSet?.map((dc: any) =>
-          dc.getCell(currentSummaryField),
-        );
-        const summaryText = total.reduce((acc, cur) => acc + cur, 0);
+        let summaryText: any = '';
+        if (!c.calc) {
+          const currentSummaryField = aggregateConfigs.find(
+            ac => ac.uid === c.uid,
+          );
+          const total = currentSummaryField
+            ? chartDataSet?.map((dc: any) => dc.getCell(currentSummaryField))
+            : [];
+          summaryText = total.reduce((acc, cur) => acc + cur, 0);
+        }
         const summaryWidth = this.getTextWidth(
           context,
           toFormattedValue(summaryText, c.format),

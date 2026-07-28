@@ -28,6 +28,8 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 public class AggregateOperator extends ColumnOperator implements Alias {
 
+    private Calc calc;
+
     private SqlOperator sqlOperator;
 
     private String alias;
@@ -51,6 +53,7 @@ public class AggregateOperator extends ColumnOperator implements Alias {
     public String toString() {
         return "AggregateOperator{" +
                 "sqlOperator=" + sqlOperator +
+                ", calc=" + calc +
                 ", column='" + getColumnKey() + '\'' +
                 '}';
     }

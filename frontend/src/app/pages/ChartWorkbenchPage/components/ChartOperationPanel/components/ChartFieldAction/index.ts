@@ -16,12 +16,14 @@
  * limitations under the License.
  */
 
+import AdvanceCalcAction from './AdvanceCalcAction';
 import AggregationAction from './AggregationAction';
 import AggregationColorizeAction from './AggregationColorizeAction';
 import AggregationLimitAction from './AggregationLimitAction';
 import AliasAction from './AliasAction';
 import ColorizeRangeAction from './ColorizeRangeAction';
 import ColorizeSingleAction from './ColorizeSingleAction';
+import DateRatioAction from './DateRatioAction';
 import FilterActions from './FilterAction';
 import NumberFormatAction from './NumberFormatAction';
 import SizeOptionsAction from './SizeAction';
@@ -31,6 +33,7 @@ const { FilterAction } = FilterActions;
 
 const actions = {
   AggregationAction,
+  AdvanceCalcAction,
   AliasAction,
   NumberFormatAction,
   SortAction,
@@ -41,6 +44,7 @@ const actions = {
   SizeOptionsAction,
   ColorizeRangeAction,
   ColorizeSingleAction,
+  DateRatioAction,
 };
 
 export default actions;

@@ -119,6 +119,11 @@ export enum AggregateFieldActionType {
   Min = 'MIN',
 }
 
+export enum AdvanceCalcFieldActionType {
+  None = 'none',
+  Ratio = 'dateRatio',
+}
+
 export enum ChartDataSectionType {
   Group = 'group',
   Aggregate = 'aggregate',
@@ -160,6 +165,7 @@ export const ChartDataSectionFieldActionType = {
   Format: 'format',
   Aggregate: 'aggregate',
   AggregateLimit: 'aggregateLimit',
+  AdvanceCalc: 'advanceCalc',
   Filter: 'filter',
   CategoryFilter: 'categoryFilter',
   Colorize: 'colorize',
@@ -167,8 +173,29 @@ export const ChartDataSectionFieldActionType = {
   ColorizeSingle: 'colorSingle',
   Size: 'size',
   DateLevel: 'dateLevel',
+  DateRatio: 'dateRatio',
   CustomizeSort: 'customizeSort',
 };
+
+export enum DateLevelType {
+  AggDateYear = 'AGG_DATE_YEAR',
+  AggDateQuarter = 'AGG_DATE_QUARTER',
+  AggDateMonth = 'AGG_DATE_MONTH',
+  AggDateWeek = 'AGG_DATE_WEEK',
+  AggDateDay = 'AGG_DATE_DAY',
+}
+
+export const DateLevelTypes: string[] = Object.values(DateLevelType);
+
+export enum DateRatioType {
+  Year = 'year',
+  Last = 'last',
+}
+
+export enum DateRatioValueType {
+  Diff = 'diff',
+  Percent = 'percent',
+}
 
 export const FilterRelationType = {
   AND: 'and',

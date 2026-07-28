@@ -24,6 +24,8 @@ import datart.core.base.processor.ProcessorResponse;
 import datart.core.data.provider.*;
 import datart.core.data.provider.processor.DataProviderPostProcessor;
 import datart.core.data.provider.processor.DataProviderPreProcessor;
+import datart.core.data.provider.sql.AggregateOperator;
+import datart.data.provider.calculator.CalculatorFactory;
 import datart.data.provider.optimize.DataProviderExecuteOptimizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,8 @@ public class ProviderManager extends DataProviderExecuteOptimizer implements Dat
     private List<ExtendProcessor> extendProcessors = new ArrayList<ExtendProcessor>();
 
     private static final Map<String, DataProvider> cachedDataProviders = new ConcurrentHashMap<>();
+
+    private static final CalculatorFactory CALCULATORS = CalculatorFactory.load();
 
     public Map<String, DataProvider> getDataProviders() {
         if (cachedDataProviders.isEmpty()) {
@@ -254,9 +258,27 @@ public class ProviderManager extends DataProviderExecuteOptimizer implements Dat
 
     @Override
     public Dataframe run(DataProviderSource source, QueryScript queryScript, ExecuteParam param) throws Exception {
-        Dataframe dataframe = getDataProviderService(source.getType()).execute(source, queryScript, param);
+        DataProvider dataProvider = getDataProviderService(source.getType());
+        Dataframe dataframe = dataProvider.execute(source, queryScript, param);
+        applyCalculations(dataframe, source, queryScript, param, dataProvider);
         excludeColumns(dataframe, param.getIncludeColumns());
         return dataframe;
+    }
+
+    private void applyCalculations(Dataframe dataframe,
+                                   DataProviderSource source,
+                                   QueryScript queryScript,
+                                   ExecuteParam param,
+                                   DataProvider dataProvider) throws Exception {
+        if (param.getAggregators() == null) {
+            return;
+        }
+        for (AggregateOperator aggregate : param.getAggregators()) {
+            if (aggregate != null && aggregate.getCalc() != null) {
+                CALCULATORS.create(aggregate.getCalc().getType())
+                        .calculate(dataframe, aggregate, param, source, queryScript, dataProvider);
+            }
+        }
     }
 
 }

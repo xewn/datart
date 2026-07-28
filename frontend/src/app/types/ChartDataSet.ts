@@ -17,7 +17,11 @@
  */
 
 import { PageInfo } from '../pages/MainPage/pages/ViewPage/slice/types';
-import { ChartDataConfig, ChartDataSectionField } from './ChartConfig';
+import {
+  AdvanceCalcFieldAction,
+  ChartDataConfig,
+  ChartDataSectionField,
+} from './ChartConfig';
 
 export interface IChartDataSetRow<T> extends Array<T> {
   getCell(field: ChartDataSectionField): T;
@@ -65,6 +69,8 @@ export type ChartDatasetPageInfo = Partial<PageInfo>;
 export type ChartDatasetMeta = {
   name?: string;
   type?: string;
+  fmt?: string;
+  calc?: AdvanceCalcFieldAction;
   primaryKey?: boolean;
 };
 
