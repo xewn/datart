@@ -120,15 +120,15 @@ Commit as `test: cover chart resize dependencies`.
 - Modify: `frontend/src/app/components/ChartGraph/BasicTableChart/__tests__/BasicTableChart.test.jsx`
 - Cherry-pick: `f7dbe0f7dc7c794119597f0af549bd4a37186018`
 
-- [ ] **Step 1: Write missing and present row tests**
+- [x] **Step 1: Write missing and present row tests**
 
 Build a minimal chart-data-set double for `getFlatColumns`. Invoke the generated column's `onCell` with an out-of-range row index and assert `{}` is returned without reading cell data. Invoke it with a valid row and assert the normal cell metadata/event path remains populated.
 
-- [ ] **Step 2: Run red, apply upstream, and run green**
+- [x] **Step 2: Run red, apply upstream, and run green**
 
 Expected baseline failure: `row.getCell` throws for the missing row. Preserve the test, cherry-pick the direct PR, restore the test, and rerun expecting PASS.
 
-- [ ] **Step 3: Commit the regression test**
+- [x] **Step 3: Commit the regression test**
 
 Commit as `test: cover missing basic table rows`.
 
