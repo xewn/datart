@@ -1,0 +1,25 @@
+services:
+  datart:
+    build:
+      context: .
+    image: ${DATART_IMAGE:-datart-local:latest}
+    restart: unless-stopped
+    environment:
+      DATART_WEBDRIVER_PATH: http://selenium:4444/wd/hub
+      JAVA_OPTS: ${DATART_JAVA_OPTS:--Xms512m -Xmx2g}
+    ports:
+      - "${DATART_PORT:-8080}:8080"
+    volumes:
+      - datart-files:/datart/files
+      - datart-logs:/datart/logs
+    depends_on:
+      - selenium
+
+  selenium:
+    image: selenium/standalone-chrome:4.10.0-20230607
+    restart: unless-stopped
+    shm_size: 2gb
+
+volumes:
+  datart-files:
+  datart-logs:

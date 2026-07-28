@@ -9,6 +9,7 @@
         <fileSet>
             <directory>${project.parent.basedir}/bin</directory>
             <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
             <includes>
                 <include>datart-server.sh</include>
@@ -17,6 +18,7 @@
         <fileSet>
             <directory>${project.parent.basedir}/bin</directory>
             <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
             <lineEnding>dos</lineEnding>
             <includes>
                 <include>datart-server.cmd</include>
@@ -42,6 +44,8 @@
             <directory>${project.parent.basedir}</directory>
             <outputDirectory>./</outputDirectory>
             <includes>
+                <include>.dockerignore</include>
+                <include>docker-compose.yml</include>
                 <include>Dockerfile</include>
                 <include>LICENSE</include>
                 <include>README.md</include>
