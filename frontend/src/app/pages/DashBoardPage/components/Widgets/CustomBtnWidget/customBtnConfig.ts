@@ -16,10 +16,7 @@
  * limitations under the License.
  */
 import { CUSTOM_BTN_DEFAULT, FONT_DEFAULT } from 'app/constants';
-import {
-  ORIGINAL_TYPE_MAP,
-  TimeDefault,
-} from 'app/pages/DashBoardPage/constants';
+import { ORIGINAL_TYPE_MAP } from 'app/pages/DashBoardPage/constants';
 import type {
   WidgetActionListItem,
   widgetActionType,
@@ -30,13 +27,11 @@ import type {
 import { getJsonConfigs } from 'app/pages/DashBoardPage/utils';
 import { WHITE } from 'styles/StyleConstants';
 import { ICustomBtnDefault, IFontDefault } from '../../../../../../types';
-import { ITimeDefault } from '../../../types/widgetTypes';
 import {
   initBackgroundTpl,
   initBorderTpl,
   initInteractionTpl,
   initPaddingTpl,
-  initTitleTpl,
   initWidgetName,
   InteractionI18N,
   PaddingI18N,
@@ -52,7 +47,7 @@ const initCustomBtnTpl = () => {
       comType: 'group',
       rows: [
         {
-          label: '按钮属性',
+          label: 'customBtn.btnFormat',
           key: 'btnFormat',
           comType: 'btnFormat',
           value: CUSTOM_BTN_DEFAULT,
@@ -65,7 +60,7 @@ const initCustomBtnTpl = () => {
       comType: 'group',
       rows: [
         {
-          label: '按钮字体',
+          label: 'customBtn.btnFont',
           key: 'btnFont',
           comType: 'font',
           value: FONT_DEFAULT,
@@ -78,10 +73,54 @@ const customBtnI18N = {
   zh: {
     meta: '按钮属性',
     btnFontGroup: '按钮字体',
+    btnFormat: '按钮属性',
+    btnFont: '按钮字体',
+    content: '按钮文字',
+    btnType: '按钮类型',
+    danger: '危险操作',
+    icon: '按钮图标',
+    iconPlaceholder: 'Ant Design 图标',
+    btnSize: '按钮大小',
+    jumpType: '跳转目标',
+    target: '打开方式',
+    dashboard: '仪表板',
+    datachart: '图表',
+    newWindow: '新窗口',
+    currentPage: '当前页',
+    default: '默认',
+    primary: '主要',
+    text: '文字',
+    link: '链接',
+    dashed: '虚线',
+    large: '大',
+    middle: '中',
+    small: '小',
   },
   en: {
     meta: 'Button Props',
     btnFontGroup: 'Button Font',
+    btnFormat: 'Button properties',
+    btnFont: 'Button font',
+    content: 'Button text',
+    btnType: 'Button type',
+    danger: 'Danger style',
+    icon: 'Button icon',
+    iconPlaceholder: 'Ant Design icon',
+    btnSize: 'Button size',
+    jumpType: 'Navigation target',
+    target: 'Open in',
+    dashboard: 'Dashboard',
+    datachart: 'Data chart',
+    newWindow: 'New window',
+    currentPage: 'Current page',
+    default: 'Default',
+    primary: 'Primary',
+    text: 'Text',
+    link: 'Link',
+    dashed: 'Dashed',
+    large: 'Large',
+    middle: 'Medium',
+    small: 'Small',
   },
 };
 const NameI18N = {

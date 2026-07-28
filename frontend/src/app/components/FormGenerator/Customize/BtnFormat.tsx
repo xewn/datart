@@ -1,10 +1,9 @@
 import { Input, Radio, Select, Space, Switch, Typography } from 'antd';
-import { FC, memo, useEffect } from 'react';
-import { ChartStyleConfig } from '../../../types/ChartConfig';
-
-import { ItemLayoutProps } from '../types';
-import { updateByKey } from '../../../utils/mutation';
+import { FC, memo } from 'react';
 import { IconList } from '../../../pages/DashBoardPage/components/Widgets/CustomBtnWidget/util/Icon';
+import { ChartStyleConfig } from '../../../types/ChartConfig';
+import { updateByKey } from '../../../utils/mutation';
+import { ItemLayoutProps } from '../types';
 
 const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
   ({ ancestors, translate: t = title => title, data, onChange, context }) => {
@@ -28,38 +27,38 @@ const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
 
     const BtnTypes = [
       {
-        name: '默认',
+        name: t('customBtn.default'),
         value: 'default',
       },
       {
-        name: '主要',
+        name: t('customBtn.primary'),
         value: 'primary',
       },
       {
-        name: '文字',
+        name: t('customBtn.text'),
         value: 'text',
       },
       {
-        name: '链接',
+        name: t('customBtn.link'),
         value: 'link',
       },
       {
-        name: '虚线',
+        name: t('customBtn.dashed'),
         value: 'dashed',
       },
     ];
 
     const BtnSizes = [
       {
-        name: '大',
+        name: t('customBtn.large'),
         value: 'large',
       },
       {
-        name: '中',
+        name: t('customBtn.middle'),
         value: 'middle',
       },
       {
-        name: '小',
+        name: t('customBtn.small'),
         value: 'small',
       },
     ];
@@ -67,7 +66,7 @@ const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
     return (
       <Space direction={'vertical'}>
         <Space direction={'vertical'}>
-          <TextSecondary>按钮文字</TextSecondary>
+          <TextSecondary>{t('customBtn.content')}</TextSecondary>
           <Input
             value={data.value?.content}
             style={{ width: '100%' }}
@@ -76,7 +75,7 @@ const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
           />
         </Space>
         <Space direction={'vertical'}>
-          <TextSecondary>按钮类型</TextSecondary>
+          <TextSecondary>{t('customBtn.btnType')}</TextSecondary>
           <Select
             value={data.value?.btnType}
             style={{ minWidth: '100%' }}
@@ -90,7 +89,7 @@ const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
           </Select>
         </Space>
         <Space direction={'vertical'}>
-          <TextSecondary>危险操作</TextSecondary>
+          <TextSecondary>{t('customBtn.danger')}</TextSecondary>
           <Switch
             checked={data.value?.danger}
             style={{ minWidth: '100%' }}
@@ -98,10 +97,10 @@ const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
           />
         </Space>
         <Space direction={'vertical'}>
-          <TextSecondary>按钮图标</TextSecondary>
+          <TextSecondary>{t('customBtn.icon')}</TextSecondary>
           <Select
             value={data.value?.icon}
-            placeholder={'Ant Design的图标'}
+            placeholder={t('customBtn.iconPlaceholder')}
             style={{ minWidth: 150 }}
             showSearch={true}
             onChange={handleSettingChangeWithValue('icon')}
@@ -109,7 +108,7 @@ const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
           />
         </Space>
         <Space direction={'vertical'}>
-          <TextSecondary>按钮大小</TextSecondary>
+          <TextSecondary>{t('customBtn.btnSize')}</TextSecondary>
           <Select
             value={data.value?.btnSize}
             style={{ minWidth: '100%' }}
@@ -123,25 +122,33 @@ const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
           </Select>
         </Space>
         <Space direction={'vertical'}>
-          <TextSecondary>跳转设置</TextSecondary>
+          <TextSecondary>{t('customBtn.jumpType')}</TextSecondary>
           <Radio.Group
             value={data.value?.jumpType}
             onChange={handleSettingChange('jumpType')}
           >
             <Radio.Button value={'url'}>URL</Radio.Button>
-            <Radio.Button value={'dashboard'}>仪表板</Radio.Button>
-            <Radio.Button value={'datachart'}>图表</Radio.Button>
+            <Radio.Button value={'dashboard'}>
+              {t('customBtn.dashboard')}
+            </Radio.Button>
+            <Radio.Button value={'datachart'}>
+              {t('customBtn.datachart')}
+            </Radio.Button>
           </Radio.Group>
         </Space>
         {data.value?.jumpType && (
           <Space direction={'vertical'}>
-            <TextSecondary>打开方式</TextSecondary>
+            <TextSecondary>{t('customBtn.target')}</TextSecondary>
             <Radio.Group
               value={data.value?.target}
               onChange={handleSettingChange('target')}
             >
-              <Radio.Button value={'_blank'}>新窗口</Radio.Button>
-              <Radio.Button value={'_self'}>当前页</Radio.Button>
+              <Radio.Button value={'_blank'}>
+                {t('customBtn.newWindow')}
+              </Radio.Button>
+              <Radio.Button value={'_self'}>
+                {t('customBtn.currentPage')}
+              </Radio.Button>
             </Radio.Group>
           </Space>
         )}
@@ -158,7 +165,7 @@ const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
         )}
         {data.value?.jumpType === 'dashboard' && (
           <Space direction={'vertical'}>
-            <TextSecondary>仪表板</TextSecondary>
+            <TextSecondary>{t('customBtn.dashboard')}</TextSecondary>
             <Select
               virtual
               showSearch
@@ -182,7 +189,7 @@ const BtnFormat: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
         )}
         {data.value?.jumpType === 'datachart' && (
           <Space direction={'vertical'}>
-            <TextSecondary>图表</TextSecondary>
+            <TextSecondary>{t('customBtn.datachart')}</TextSecondary>
             <Select
               virtual
               showSearch

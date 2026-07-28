@@ -22,6 +22,7 @@ import useDrillThrough from '../../../../../hooks/useDrillThrough';
 import { BoardContext } from '../../BoardProvider/BoardProvider';
 import { WidgetContext } from '../../WidgetProvider/WidgetProvider';
 import { customBtnWidgetToolKit } from './customBtnConfig';
+import { getCustomButtonNavigation } from './navigation';
 import { Icon } from './util/Icon';
 
 export const CustomBtnWidgetCore: React.FC = memo(props => {
@@ -54,35 +55,22 @@ export const CustomBtnWidgetCore: React.FC = memo(props => {
     useDrillThrough();
 
   const onClick = () => {
-    switch (customBtnConfig?.jumpType) {
-      case 'dashboard':
-        jump(customBtnConfig?.dashboardId);
-        break;
-      case 'datachart':
-        jump(customBtnConfig?.datachartId);
-        break;
-      case 'url':
-        jumpByHref();
+    const navigation = getCustomButtonNavigation(customBtnConfig || {});
+    if (!navigation) {
+      return;
     }
-  };
-
-  const jump = relId => {
-    if (!relId) return;
-    const { target } = customBtnConfig;
-    if (target === '_self') {
-      openNewTab(orgId, relId);
-    } else {
-      openBrowserTab(orgId, relId);
+    if (navigation.kind === 'internal') {
+      if (navigation.target === '_self') {
+        openNewTab(orgId, navigation.relId);
+      } else {
+        openBrowserTab(orgId, navigation.relId);
+      }
+      return;
     }
-  };
-
-  const jumpByHref = () => {
-    const { target, href } = customBtnConfig;
-    if (!href) return;
-    if (target === '_self') {
-      redirectByUrl(href);
+    if (navigation.target === '_self') {
+      redirectByUrl(navigation.href);
     } else {
-      openNewByUrl(href);
+      openNewByUrl(navigation.href);
     }
   };
 
@@ -94,6 +82,7 @@ export const CustomBtnWidgetCore: React.FC = memo(props => {
       danger={customBtnConfig?.danger || false}
       onClick={onClick}
       icon={customBtnConfig?.icon && <Icon icon={customBtnConfig.icon} />}
+      aria-label={customBtnConfig?.content || 'Dashboard action'}
     >
       {customBtnConfig?.content}
     </Button>
