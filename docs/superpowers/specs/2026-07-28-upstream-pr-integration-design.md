@@ -233,7 +233,7 @@ npm run build
 
 The repository targets Java 8 source compatibility. The machine has Java 17
 but no Maven executable. Before backend PR implementation, use a task-local
-Apache Maven 3.9.11 distribution so no system-wide installation is required.
+Apache Maven 3.9.16 distribution so no system-wide installation is required.
 
 Establish and record the unmodified backend baseline with:
 
