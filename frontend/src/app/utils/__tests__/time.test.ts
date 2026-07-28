@@ -16,7 +16,37 @@
  * limitations under the License.
  */
 
-import { splitRangerDateFilters } from '../time';
+import { RECOMMEND_TIME } from 'globalConstants';
+import { recommendTimeRangeConverter, splitRangerDateFilters } from '../time';
+
+describe('recommendTimeRangeConverter', () => {
+  beforeEach(() => {
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(new Date(2024, 1, 29, 12, 0, 0));
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test('returns the rolling last month across a month boundary', () => {
+    expect(
+      recommendTimeRangeConverter(
+        RECOMMEND_TIME.LAST_1_MONTH,
+        'YYYY-MM-DD',
+      ),
+    ).toEqual(['2024-01-29', '2024-02-29']);
+  });
+
+  test('returns the rolling last year across a leap-day boundary', () => {
+    expect(
+      recommendTimeRangeConverter(
+        RECOMMEND_TIME.LAST_1_YEAR,
+        'YYYY-MM-DD',
+      ),
+    ).toEqual(['2023-02-28', '2024-02-29']);
+  });
+});
 
 describe('test splitRangerDateFilters', () => {
   const rangerDateFilter = {

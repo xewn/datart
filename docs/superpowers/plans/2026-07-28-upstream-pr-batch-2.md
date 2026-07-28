@@ -179,15 +179,15 @@ Commit as `test: cover embedded chart date fields`.
 - Modify: `frontend/src/app/utils/__tests__/time.test.ts`
 - Cherry-pick: `95023762062e02c4687bab9bdf8f446e1f15412d`
 
-- [ ] **Step 1: Add fixed-clock range tests**
+- [x] **Step 1: Add fixed-clock range tests**
 
 Use Jest modern fake timers and a fixed local time. Assert `LAST_1_MONTH` starts one month earlier at start-of-day and ends today at end-of-day. Assert `LAST_1_YEAR` starts one year earlier and ends today. Include a leap-day case and verify the optional output format is honored.
 
-- [ ] **Step 2: Run red, apply upstream, and run green**
+- [x] **Step 2: Run red, apply upstream, and run green**
 
 Expected baseline failure: the current implementation returns the current calendar month/year rather than the rolling last month/year. Preserve the test, cherry-pick the direct PR, resolve only the stale `dateFormat` call-site difference, restore the test, and rerun expecting PASS.
 
-- [ ] **Step 3: Commit the regression test**
+- [x] **Step 3: Commit the regression test**
 
 Commit as `test: cover recommended month and year ranges`.
 
