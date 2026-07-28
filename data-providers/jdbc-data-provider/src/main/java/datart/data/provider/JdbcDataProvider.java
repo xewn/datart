@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class JdbcDataProvider extends DataProvider {
      */
     public static final Integer DEFAULT_MAX_WAIT = 5000;
 
-    private final Map<String, JdbcDataProviderAdapter> cachedProviders = new ConcurrentSkipListMap<>();
+    private final Map<String, JdbcDataProviderAdapter> cachedProviders = new ConcurrentHashMap<>();
 
     @Override
     public Object test(DataProviderSource source) {
@@ -141,14 +142,21 @@ public class JdbcDataProvider extends DataProvider {
     }
 
     private JdbcDataProviderAdapter matchProviderAdapter(DataProviderSource source) {
-        JdbcDataProviderAdapter adapter;
-        adapter = cachedProviders.get(source.getSourceId());
-        if (adapter != null) {
-            return adapter;
-        }
-        adapter = ProviderFactory.createDataProvider(conv2JdbcProperties(source), true);
-        cachedProviders.put(source.getSourceId(), adapter);
-        return adapter;
+        JdbcProperties jdbcProperties = conv2JdbcProperties(source);
+        return cachedProviders.compute(source.getSourceId(), (sourceId, current) -> {
+            if (current != null && Objects.equals(current.getJdbcProperties(), jdbcProperties)) {
+                return current;
+            }
+            JdbcDataProviderAdapter replacement = createDataProvider(jdbcProperties);
+            if (current != null) {
+                current.close();
+            }
+            return replacement;
+        });
+    }
+
+    protected JdbcDataProviderAdapter createDataProvider(JdbcProperties jdbcProperties) {
+        return ProviderFactory.createDataProvider(jdbcProperties, true);
     }
 
     @Override

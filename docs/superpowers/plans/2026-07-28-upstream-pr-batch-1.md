@@ -178,19 +178,19 @@ Run both tests and commit as `fix: enforce exact column permissions` with PR `#2
 - Create: `data-providers/jdbc-data-provider/src/test/java/datart/data/provider/JdbcDataProviderTest.java`
 - Modify: `data-providers/jdbc-data-provider/src/main/java/datart/data/provider/JdbcDataProvider.java`
 
-- [ ] **Step 1: Write cache lifecycle tests**
+- [x] **Step 1: Write cache lifecycle tests**
 
 Use a test subclass overriding a new protected `createDataProvider(JdbcProperties)` seam. Assert unchanged properties reuse the adapter; changed properties create the replacement before closing the old adapter; the old adapter closes exactly once; and concurrent requests for the same changed source create only one replacement.
 
-- [ ] **Step 2: Run the red tests**
+- [x] **Step 2: Run the red tests**
 
 Run the jdbc-data-provider focused test. Expect changed properties to continue returning the stale adapter.
 
-- [ ] **Step 3: Implement atomic replacement**
+- [x] **Step 3: Implement atomic replacement**
 
 Convert source properties once and use `cachedProviders.compute(sourceId, ...)`. Return the existing adapter when its `JdbcProperties` are equal. Otherwise create the replacement first, close the previous adapter once, and return the replacement. Keep failures from removing a working adapter.
 
-- [ ] **Step 4: Verify and commit with provenance**
+- [x] **Step 4: Verify and commit with provenance**
 
 Run focused tests and commit as `fix: refresh cached JDBC providers atomically` with PR `#2356`, source SHA `7244f9317853652963b157858af2cfe27d69fcfc`, and `Co-authored-by: kanlon <Canlong2015@126.com>`.
 
