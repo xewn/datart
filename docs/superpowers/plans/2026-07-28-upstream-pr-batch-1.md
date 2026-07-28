@@ -244,19 +244,19 @@ Run focused tests and commit as `perf: batch dashboard query variables` with PR 
 - Create: `server/src/test/java/datart/server/service/impl/AttachmentExcelServiceImplTest.java`
 - Modify: `server/src/main/java/datart/server/service/impl/AttachmentExcelServiceImpl.java`
 
-- [ ] **Step 1: Write sheet-name tests**
+- [x] **Step 1: Write sheet-name tests**
 
 Exercise a package-visible `uniqueSheetName(Workbook, String, int)` helper with duplicates, a pre-existing suffixed name (`Sales`, `Sales (2)`, `Sales`), case-only duplicates, invalid Excel characters, blank names, and names longer than 31 characters. Assert every result is valid, at most 31 characters, and unique in the workbook.
 
-- [ ] **Step 2: Run the red test**
+- [x] **Step 2: Run the red test**
 
 Run the server focused test and expect the helper to be absent/current duplicate behavior to fail.
 
-- [ ] **Step 3: Implement safe deterministic names**
+- [x] **Step 3: Implement safe deterministic names**
 
 Sanitize with `WorkbookUtil.createSafeSheetName`, default blanks to `Sheet<n>`, and probe case-insensitively for a free name. Add ` (2)`, ` (3)`, and so on while truncating the base so the final name never exceeds 31 characters. Use the helper immediately before `POIUtils.withSheet`.
 
-- [ ] **Step 4: Verify and commit with provenance**
+- [x] **Step 4: Verify and commit with provenance**
 
 Run focused tests and commit as `fix: generate unique Excel sheet names` with PR `#2131`, source SHA `dc26f7be11bc4b624195507596227c3006645d83`, and `Co-authored-by: kanlon <Canlong2015@126.com>`.
 

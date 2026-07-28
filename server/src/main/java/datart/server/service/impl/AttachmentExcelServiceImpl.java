@@ -14,6 +14,7 @@ import datart.server.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.WorkbookUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -21,6 +22,8 @@ import java.io.File;
 @Service("excelAttachmentService")
 @Slf4j
 public class AttachmentExcelServiceImpl implements AttachmentService {
+
+    private static final int MAX_SHEET_NAME_LENGTH = 31;
 
     protected final AttachmentType attachmentType = AttachmentType.EXCEL;
 
@@ -44,7 +47,7 @@ public class AttachmentExcelServiceImpl implements AttachmentService {
             Dataframe dataframe = dataProviderService.execute(downloadParams.getDownloadParams().get(i));
             String chartConfigStr = vizService.getChartConfigByVizId(viewExecuteParam.getVizType(), viewExecuteParam.getVizId());
             POISettings poiSettings = PoiConvertUtils.covertToPoiSetting(chartConfigStr, dataframe);
-            String sheetName = StringUtils.isNotBlank(viewExecuteParam.getVizName()) ? viewExecuteParam.getVizName() : "Sheet"+i;
+            String sheetName = uniqueSheetName(workbook, viewExecuteParam.getVizName(), i);
             POIUtils.withSheet(workbook, sheetName, dataframe, poiSettings);
         }
         path = generateFileName(path,fileName,attachmentType);
@@ -52,5 +55,33 @@ public class AttachmentExcelServiceImpl implements AttachmentService {
         POIUtils.save(workbook, file.getPath(), true);
         log.info("create excel file complete.");
         return file;
+    }
+
+    String uniqueSheetName(Workbook workbook, String requestedName, int index) {
+        String fallbackName = "Sheet" + index;
+        String baseName = WorkbookUtil.createSafeSheetName(
+                StringUtils.isBlank(requestedName) ? fallbackName : requestedName);
+        if (StringUtils.isBlank(baseName)) {
+            baseName = fallbackName;
+        }
+
+        String candidate = baseName;
+        int suffixNumber = 2;
+        while (containsSheetIgnoreCase(workbook, candidate)) {
+            String suffix = " (" + suffixNumber + ")";
+            int baseLength = Math.min(baseName.length(), MAX_SHEET_NAME_LENGTH - suffix.length());
+            candidate = baseName.substring(0, baseLength) + suffix;
+            suffixNumber++;
+        }
+        return candidate;
+    }
+
+    private boolean containsSheetIgnoreCase(Workbook workbook, String candidate) {
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+            if (workbook.getSheetName(i).equalsIgnoreCase(candidate)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
