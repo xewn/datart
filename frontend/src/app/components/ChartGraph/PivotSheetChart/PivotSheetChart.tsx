@@ -64,6 +64,129 @@ enum BolderFontWeight {
   bolder = 'bolder',
 }
 
+interface SlashCornerShape {
+  type: 'polygon' | 'line' | 'text';
+  attrs: Record<string, unknown>;
+  zIndex?: number;
+}
+
+interface SlashCornerShapeOptions {
+  width: number;
+  height: number;
+  columns: string[];
+  rows: string[];
+  theme: DefaultCellTheme;
+}
+
+interface SlashCornerHeaderConfig {
+  data?: Array<{ cornerType: 'col' | 'row'; value: string }>;
+  columns?: string[];
+  rows?: string[];
+}
+
+export const buildSlashCornerShapes = ({
+  width,
+  height,
+  columns,
+  rows,
+  theme,
+}: SlashCornerShapeOptions): SlashCornerShape[] => {
+  const textColor = theme.text?.fill || 'black';
+  const textStyle = {
+    fontFamily: theme.text?.fontFamily,
+    fontSize: theme.text?.fontSize,
+    fill: textColor,
+  };
+
+  return [
+    {
+      type: 'polygon',
+      attrs: {
+        points: [
+          [0, 0],
+          [0, height],
+          [width, height],
+          [width, 0],
+        ],
+        fill: theme.cell?.backgroundColor,
+      },
+    },
+    {
+      type: 'line',
+      attrs: {
+        x1: 0,
+        y1: 0,
+        x2: width,
+        y2: height,
+        stroke: textColor,
+        lineWidth: 1,
+      },
+    },
+    {
+      type: 'text',
+      zIndex: 100,
+      attrs: {
+        x: (width / 3) * 1.2,
+        y: height / 3,
+        text: columns.filter(column => column !== '$$extra$$').join('/'),
+        ...textStyle,
+      },
+    },
+    {
+      type: 'text',
+      zIndex: 100,
+      attrs: {
+        x: width / 9,
+        y: Number(((height / 5) * 4.8).toFixed(2)),
+        text: rows.join('/'),
+        ...textStyle,
+      },
+    },
+  ];
+};
+
+export const createSlashCornerRenderer = (
+  enabled: boolean,
+  headerTheme: DefaultCellTheme,
+) => {
+  if (!enabled) {
+    return undefined;
+  }
+
+  return (
+    node: S2CellType,
+    spreadsheet: SpreadSheet,
+    ...restOptions: unknown[]
+  ) => {
+    const config = (restOptions[0] || {}) as SlashCornerHeaderConfig;
+    const data = config.data || [];
+    const spreadsheetTheme = spreadsheet.theme?.cornerCell || {};
+    const theme: DefaultCellTheme = {
+      ...headerTheme,
+      ...spreadsheetTheme,
+      cell: { ...headerTheme.cell, ...spreadsheetTheme.cell },
+      text: { ...headerTheme.text, ...spreadsheetTheme.text },
+    };
+    const cornerNode = node as S2CellType & {
+      cfg: { width: number; height: number };
+    };
+    const columns = data.length
+      ? data.filter(item => item.cornerType === 'col').map(item => item.value)
+      : config.columns || [];
+    const rows = data.length
+      ? data.filter(item => item.cornerType === 'row').map(item => item.value)
+      : config.rows || [];
+
+    buildSlashCornerShapes({
+      width: cornerNode.cfg.width,
+      height: cornerNode.cfg.height,
+      columns,
+      rows,
+      theme,
+    }).forEach(({ type, ...shape }) => node.addShape(type, shape));
+  };
+};
+
 class PivotSheetChart extends ReactChart {
   static icon = `<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' aria-hidden='true' role='img' width='1em' height='1em' preserveAspectRatio='xMidYMid meet' viewBox='0 0 24 24'><path d='M10 8h11V5c0-1.1-.9-2-2-2h-9v5zM3 8h5V3H5c-1.1 0-2 .9-2 2v3zm2 13h3V10H3v9c0 1.1.9 2 2 2zm8 1l-4-4l4-4zm1-9l4-4l4 4zm.58 6H13v-2h1.58c1.33 0 2.42-1.08 2.42-2.42V13h2v1.58c0 2.44-1.98 4.42-4.42 4.42z' fill='gray'/></svg>`;
 
@@ -171,6 +294,7 @@ class PivotSheetChart extends ReactChart {
       enableHoverHighlight,
       enableSelectedHighlight,
       metricNameShowIn,
+      enableSlash,
     ] = getStyles(
       styleConfigs,
       ['style'],
@@ -179,6 +303,7 @@ class PivotSheetChart extends ReactChart {
         'enableHoverHighlight',
         'enableSelectedHighlight',
         'metricNameShowIn',
+        'enableSlash',
       ],
     );
     const [summaryAggregation] = getStyles(
@@ -232,6 +357,10 @@ class PivotSheetChart extends ReactChart {
         this.collapsedRows = {};
       }
     }
+    const cornerHeader = createSlashCornerRenderer(
+      Boolean(enableSlash),
+      this.getHeaderStyle(styleConfigs),
+    );
     return {
       options: {
         hierarchyType: enableExpandRow ? 'tree' : 'grid',
@@ -242,6 +371,7 @@ class PivotSheetChart extends ReactChart {
           showTooltip: true,
         },
         cornerExtraFieldText: context.translator('summary.number'),
+        ...(cornerHeader ? { cornerHeader } : {}),
         interaction: {
           hoverHighlight: Boolean(enableHoverHighlight),
           selectedCellsSpotlight: Boolean(enableSelectedHighlight),
