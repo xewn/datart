@@ -36,19 +36,19 @@ Focused Jest commands use `npm run test -- --watchAll=false --runInBand --silent
 - Create: `frontend/src/app/pages/MainPage/pages/ViewPage/Main/StructView/components/__tests__/SelectDataSource.test.tsx`
 - Cherry-pick: `6b3f35d11dbe443a84220ef4b9397b08502e5ff0`
 
-- [ ] **Step 1: Write the stale-state regression test**
+- [x] **Step 1: Write the stale-state regression test**
 
 Render `SelectDataSource` in `JOINS` mode with mocked Redux selectors and an initial `joinTable` containing a table and columns. Rerender with the same source but no join table. Assert the previously selected table label disappears and the translated select-table label is shown. Retain a second assertion proving a replacement join table still renders normally.
 
-- [ ] **Step 2: Run the red test**
+- [x] **Step 2: Run the red test**
 
 Run the focused Jest file. Expected: FAIL because the effect only sets state when `joinTable.table` is present and leaves the old selection behind when the relation is removed.
 
-- [ ] **Step 3: Apply the upstream commit and verify green**
+- [x] **Step 3: Apply the upstream commit and verify green**
 
 Preserve the test, cherry-pick `refs/remotes/upstream/pr/2368`, restore the test, and rerun. The production diff must only add the explicit `JOINS` empty-state reset and the property-access cleanup from the upstream commit.
 
-- [ ] **Step 4: Commit the regression test**
+- [x] **Step 4: Commit the regression test**
 
 Commit as `test: cover removed join table state`.
 
