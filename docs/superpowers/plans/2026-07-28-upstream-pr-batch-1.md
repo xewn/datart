@@ -222,19 +222,19 @@ Commit as `test: cover archived schema jobs`.
 - Modify: `server/src/main/java/datart/server/service/impl/VariableServiceImpl.java`
 - Modify: `server/src/main/java/datart/server/service/impl/DashboardServiceImpl.java`
 
-- [ ] **Step 1: Write batch and empty-set tests**
+- [x] **Step 1: Write batch and empty-set tests**
 
 Assert `VariableServiceImpl.listViewQueryVariablesByViewIds(Collections.emptySet())` returns empty without invoking the mapper. Extract a package-visible dashboard helper and assert a non-empty set triggers exactly one mapper-backed service call while preserving organization variables; an empty set triggers no view-variable call.
 
-- [ ] **Step 2: Run the red tests**
+- [x] **Step 2: Run the red tests**
 
 Run the server focused tests and expect the batch API/helper to be absent.
 
-- [ ] **Step 3: Implement guarded batching**
+- [x] **Step 3: Implement guarded batching**
 
 Add the MyBatis `IN` foreach query for non-empty view IDs. Guard null/empty sets in `VariableServiceImpl` before invoking MyBatis. Replace the dashboard loop with one batch call and keep deterministic organization variables first.
 
-- [ ] **Step 4: Verify and commit with provenance**
+- [x] **Step 4: Verify and commit with provenance**
 
 Run focused tests and commit as `perf: batch dashboard query variables` with PR `#2189`, source SHA `bd94783c613c27ef6b3eb4a7ca2d04b6abcb71f0`, and `Co-authored-by: kanlon <Canlong2015@126.com>`.
 

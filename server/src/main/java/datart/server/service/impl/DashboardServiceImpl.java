@@ -185,17 +185,19 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
         }
 
         //variables
-        LinkedList<Variable> variables = new LinkedList<>(variableService.listOrgQueryVariables(dashboard.getOrgId()));
-        if (!CollectionUtils.isEmpty(viewIds)) {
-            for (String viewId : viewIds) {
-                variables.addAll(variableService.listViewQueryVariables(viewId));
-            }
-        }
-        dashboardDetail.setQueryVariables(variables);
+        dashboardDetail.setQueryVariables(collectQueryVariables(dashboard.getOrgId(), viewIds));
         // download permission
         dashboardDetail.setDownload(securityManager.hasPermission(PermissionHelper.vizPermission(dashboard.getOrgId(), "*", dashboardId, Const.DOWNLOAD)));
 
         return dashboardDetail;
+    }
+
+    List<Variable> collectQueryVariables(String orgId, Set<String> viewIds) {
+        LinkedList<Variable> variables = new LinkedList<>(variableService.listOrgQueryVariables(orgId));
+        if (!CollectionUtils.isEmpty(viewIds)) {
+            variables.addAll(variableService.listViewQueryVariablesByViewIds(viewIds));
+        }
+        return variables;
     }
 
     @Override
