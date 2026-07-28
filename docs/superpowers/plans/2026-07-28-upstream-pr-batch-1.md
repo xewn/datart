@@ -108,15 +108,15 @@ Co-authored-by: ghy <ghyghoo8@qq.com>
 - Create: `data-providers/data-provider-base/src/test/java/datart/data/provider/calcite/SqlBuilderTest.java`
 - Cherry-pick: `145c0557d9523fa64d1f68fff0ba4f7d92e3ae34`
 
-- [ ] **Step 1: Write and run the failing order-node test**
+- [x] **Step 1: Write and run the failing order-node test**
 
 Create an `OrderOperator` for column `user_id`, aggregate `COUNT_DISTINCT`, and descending order. Invoke `createOrderNode` through `ReflectionTestUtils`, render it with `H2Dialect.DEFAULT`, and assert the SQL contains `COUNT(DISTINCT` and ends in `DESC`. Run the data-provider-base focused test; expect the baseline to render `COUNT(user_id)`.
 
-- [ ] **Step 2: Apply the upstream commit and verify**
+- [x] **Step 2: Apply the upstream commit and verify**
 
 Preserve the test, cherry-pick `refs/remotes/upstream/pr/2277`, restore the test, and rerun the focused test expecting PASS.
 
-- [ ] **Step 3: Commit the regression test**
+- [x] **Step 3: Commit the regression test**
 
 Commit as `test: cover count distinct ordering`.
 
