@@ -6,7 +6,7 @@ public interface DocumentClient extends AutoCloseable {
 
     void ping();
 
-    Dataframe execute(String command, int maxRows);
+    Dataframe execute(String command, long offset, int maxRows);
 
     @Override
     void close();

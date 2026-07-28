@@ -84,6 +84,23 @@ class MongoDocumentClientTest {
     }
 
     @Test
+    void appliesPaginationToFindAndAggregateCommands() {
+        Document find = MongoDocumentClient.applyWindow(new Document("find", "people"), 25L, 25);
+        assertEquals(25L, find.get("skip"));
+        assertEquals(25, find.get("limit"));
+        assertEquals("find", find.keySet().iterator().next());
+
+        Document aggregate = MongoDocumentClient.applyWindow(new Document("aggregate", "people")
+                .append("pipeline", Collections.singletonList(new Document("$sort", new Document("name", 1))))
+                .append("cursor", new Document()), 50L, 25);
+        assertEquals(Arrays.asList(
+                        new Document("$sort", new Document("name", 1)),
+                        new Document("$skip", 50L),
+                        new Document("$limit", 25)),
+                aggregate.getList("pipeline", Document.class));
+    }
+
+    @Test
     void killsCursorWhenResultExceedsRowLimit() {
         MongoDatabase database = mock(MongoDatabase.class);
         Document command = new Document("find", "people");

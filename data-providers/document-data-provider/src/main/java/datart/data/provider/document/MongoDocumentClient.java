@@ -43,8 +43,8 @@ class MongoDocumentClient implements DocumentClient {
     }
 
     @Override
-    public Dataframe execute(String command, int maxRows) {
-        Document parsed = parseReadOnlyCommand(command);
+    public Dataframe execute(String command, long offset, int maxRows) {
+        Document parsed = applyWindow(parseReadOnlyCommand(command), offset, maxRows);
         return toDataframe(readAllBatches(database, parsed, maxRows), command);
     }
 
@@ -73,6 +73,28 @@ class MongoDocumentClient implements DocumentClient {
             throw new IllegalArgumentException("MongoDB aggregate commands cannot contain $out or $merge");
         }
         return parsed;
+    }
+
+    static Document applyWindow(Document command, long offset, int limit) {
+        if (offset < 0 || limit <= 0) {
+            throw new IllegalArgumentException("MongoDB result window is invalid");
+        }
+        if (command.containsKey("find")) {
+            command.put("skip", offset);
+            command.put("limit", limit);
+            return command;
+        }
+        List<Document> pipeline = new ArrayList<>();
+        List<Document> configured = command.getList("pipeline", Document.class);
+        if (configured != null) {
+            pipeline.addAll(configured);
+        }
+        if (offset > 0) {
+            pipeline.add(new Document("$skip", offset));
+        }
+        pipeline.add(new Document("$limit", limit));
+        command.put("pipeline", pipeline);
+        return command;
     }
 
     static List<Document> readAllBatches(MongoDatabase database, Document command, int maxRows) {

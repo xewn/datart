@@ -162,7 +162,8 @@ public class DateRatioCalculator extends AbstractCalculator {
         copy.getFilters().removeIf(filter -> dateColumnKey.equals(filter.getColumnKey()));
         copy.getFilters().add(boundFilter(dateColumn, FilterOperator.SqlOperator.GTE, period.start));
         copy.getFilters().add(boundFilter(dateColumn, FilterOperator.SqlOperator.LT, period.end()));
-        String cacheKey = String.join(".", dateColumn) + ':' + period.label();
+        String cacheKey = String.join(".", dateColumn) + ':' + period.level + ':'
+                + period.start + ':' + period.end();
         Dataframe cached = periodReferences.get(cacheKey);
         if (cached != null) {
             return cached;
@@ -223,7 +224,7 @@ public class DateRatioCalculator extends AbstractCalculator {
         copy.setOrders(new ArrayList<>());
         copy.setPageInfo(PageInfo.builder()
                 .pageNo(1)
-                .pageSize(MAX_SUPPLEMENTARY_ROWS)
+                .pageSize(MAX_SUPPLEMENTARY_ROWS + 1L)
                 .countTotal(false)
                 .build());
         return copy;

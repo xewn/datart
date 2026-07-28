@@ -85,7 +85,7 @@ class DateRatioCalculatorTest {
         assertEquals(0.5d, page.getRows().get(0).get(2));
         assertEquals(1, requests.size());
         assertEquals(1, requests.get(0).getPageInfo().getPageNo());
-        assertEquals(DateRatioCalculator.MAX_SUPPLEMENTARY_ROWS,
+        assertEquals(DateRatioCalculator.MAX_SUPPLEMENTARY_ROWS + 1L,
                 requests.get(0).getPageInfo().getPageSize());
         assertEquals(false, requests.get(0).getPageInfo().isCountTotal());
         assertEquals(2, param.getPageInfo().getPageNo());
@@ -135,7 +135,7 @@ class DateRatioCalculatorTest {
         assertEquals(2, requests.get(1).getFilters().size());
         assertNotSame(param.getPageInfo(), requests.get(0).getPageInfo());
         assertEquals(1, requests.get(0).getPageInfo().getPageNo());
-        assertEquals(DateRatioCalculator.MAX_SUPPLEMENTARY_ROWS,
+        assertEquals(DateRatioCalculator.MAX_SUPPLEMENTARY_ROWS + 1L,
                 requests.get(0).getPageInfo().getPageSize());
         assertEquals(false, requests.get(0).getPageInfo().isCountTotal());
         assertEquals(3, param.getPageInfo().getPageNo());
@@ -163,6 +163,34 @@ class DateRatioCalculatorTest {
         DateRatioCalculator calculator = new DateRatioCalculator();
         assertThrows(IllegalStateException.class,
                 () -> calculator.calculate(page, aggregate, param, null, null, provider));
+    }
+
+    @Test
+    void doesNotReuseSelectedPeriodsAcrossDateLevelsWithTheSameLabel() throws Exception {
+        AggregateOperator month = aggregate("SUM(amount)-month", "last", "percent");
+        config(month).put("column", Collections.singletonList("created_at"));
+        config(month).put("select", "2024-01");
+        AggregateOperator week = aggregate("SUM(amount)-week", "last", "percent");
+        config(week).put("snippet", "AGG_DATE_WEEK(created_at)");
+        config(week).put("column", Collections.singletonList("created_at"));
+        config(week).put("select", "2024-01");
+        ExecuteParam param = executeParam(month);
+        param.setAggregators(Arrays.asList(month, week));
+        param.setGroups(Collections.singletonList(param.getGroups().get(0)));
+        param.setFunctionColumns(Collections.emptyList());
+        Dataframe page = dataframeWithAliases(Collections.singletonList(
+                row("east", 0d, 0d)), "SUM(amount)-month", "SUM(amount)-week");
+        DataProvider provider = mock(DataProvider.class);
+        when(provider.execute(isNull(), isNull(), any(ExecuteParam.class)))
+                .thenReturn(dataframeWithAliases(Collections.singletonList(
+                        row("east", 100d, 100d)), "SUM(amount)-month", "SUM(amount)-week"));
+
+        DateRatioCalculator calculator = new DateRatioCalculator();
+        calculator.calculate(page, month, param, null, null, provider);
+        calculator.calculate(page, week, param, null, null, provider);
+
+        org.mockito.Mockito.verify(provider, org.mockito.Mockito.times(4))
+                .execute(isNull(), isNull(), any(ExecuteParam.class));
     }
 
     private AggregateOperator aggregate(String alias, String ratioType, String valueType) {
@@ -218,6 +246,16 @@ class DateRatioCalculatorTest {
                 : Arrays.asList(
                 Column.of(ValueType.STRING, "region"),
                 Column.of(ValueType.NUMERIC, alias)));
+        dataframe.setRows(new ArrayList<>(rows));
+        return dataframe;
+    }
+
+    private Dataframe dataframeWithAliases(List<List<Object>> rows, String firstAlias, String secondAlias) {
+        Dataframe dataframe = new Dataframe();
+        dataframe.setColumns(Arrays.asList(
+                Column.of(ValueType.STRING, "region"),
+                Column.of(ValueType.NUMERIC, firstAlias),
+                Column.of(ValueType.NUMERIC, secondAlias)));
         dataframe.setRows(new ArrayList<>(rows));
         return dataframe;
     }

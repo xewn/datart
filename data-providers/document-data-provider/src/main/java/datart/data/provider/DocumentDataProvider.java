@@ -58,7 +58,10 @@ public class DocumentDataProvider extends DataProvider {
 
     @Override
     public String getQueryKey(DataProviderSource source, QueryScript script, ExecuteParam executeParam) {
-        return "Q" + DigestUtils.sha256Hex(String.valueOf(source.getSourceId()) + '\0' + script.getScript());
+        int limit = resultLimit(executeParam);
+        long offset = resultOffset(executeParam, limit);
+        return "Q" + DigestUtils.sha256Hex(String.valueOf(source.getSourceId()) + '\0'
+                + script.getScript() + '\0' + offset + '\0' + limit);
     }
 
     @Override
@@ -66,7 +69,8 @@ public class DocumentDataProvider extends DataProvider {
         if (script == null || script.getScript() == null) {
             throw new IllegalArgumentException("MongoDB query command is required");
         }
-        return clients.getClient(source).execute(script.getScript(), resultLimit(executeParam));
+        int limit = resultLimit(executeParam);
+        return clients.getClient(source).execute(script.getScript(), resultOffset(executeParam, limit), limit);
     }
 
     static int resultLimit(ExecuteParam executeParam) {
@@ -75,6 +79,16 @@ public class DocumentDataProvider extends DataProvider {
             return MAX_RESULT_ROWS;
         }
         return (int) Math.min(executeParam.getPageInfo().getPageSize(), MAX_RESULT_ROWS);
+    }
+
+    static long resultOffset(ExecuteParam executeParam, int limit) {
+        long pageNo = executeParam == null || executeParam.getPageInfo() == null
+                ? 1L : Math.max(1L, executeParam.getPageInfo().getPageNo());
+        try {
+            return Math.multiplyExact(pageNo - 1L, limit);
+        } catch (ArithmeticException e) {
+            throw new IllegalArgumentException("Document query page offset is too large", e);
+        }
     }
 
     @Override
