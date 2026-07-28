@@ -102,15 +102,15 @@ Run the focused manager tests and commit as `fix: retain chart listener identiti
 - Create: `frontend/src/app/components/ChartIFrameContainer/__tests__/ChartIFrameLifecycleAdapter.test.tsx`
 - Cherry-pick: `6af405c69f8777de1307b57cb3a1e87535f15840`
 
-- [ ] **Step 1: Write the lifecycle regression test**
+- [x] **Step 1: Write the lifecycle regression test**
 
 Mock `useFrame`, `ChartIFrameResourceLoader`, and `ChartIFrameEventBroker`. Render the adapter to a successful mounted state, record published Resize events, then rerender with only `isLoadingData` changing false to true and back to false. Assert loading changes do not add a Resize event; separately rerender with a changed width and assert exactly one Resize is published.
 
-- [ ] **Step 2: Run red, apply upstream, and run green**
+- [x] **Step 2: Run red, apply upstream, and run green**
 
 Expected baseline failure: the false transition republishes Resize because `isLoadingData` is in the resize effect dependency list. Preserve the test, cherry-pick the direct PR, restore the test, and rerun expecting PASS.
 
-- [ ] **Step 3: Commit the regression test**
+- [x] **Step 3: Commit the regression test**
 
 Commit as `test: cover chart resize dependencies`.
 
