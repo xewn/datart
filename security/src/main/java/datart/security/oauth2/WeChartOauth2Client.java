@@ -31,11 +31,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.ssl.SSLContexts;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -48,21 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class WeChartOauth2Client implements CustomOauth2Client {
 
-    private static final HttpClient httpClient;
-
-    static {
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-        try {
-            // trust self-signed certificate and ignore hostname verification
-            SSLConnectionSocketFactory scsf = new SSLConnectionSocketFactory(
-                    SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build(),
-                    NoopHostnameVerifier.INSTANCE);
-            httpClientBuilder.setSSLSocketFactory(scsf);
-        } catch (Exception e) {
-            log.warn("HttpClient config ssl failed, and used default config.");
-        }
-        httpClient = httpClientBuilder.build();
-    }
+    private static final HttpClient httpClient = HttpClients.createSystem();
 
     public static final String REGISTRATION_ID = "wechart";
 

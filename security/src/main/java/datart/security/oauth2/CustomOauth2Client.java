@@ -35,7 +35,7 @@ public interface CustomOauth2Client {
     String REGISTRATION_ID = "registrationId";
 
     Set<String> CUSTOM_OAUTH2_CLIENTS = Sets.newHashSet(DingTalkOauth2Client.REGISTRATION_ID
-            , WeChartOauth2Client.REGISTRATION_ID);
+            , WeChartOauth2Client.REGISTRATION_ID, WeChatOauth2Client.REGISTRATION_ID);
 
     void authorizationRequest(HttpServletRequest request, HttpServletResponse response);
 

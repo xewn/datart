@@ -24,7 +24,6 @@ import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2Clien
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +31,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 public class ClientRegistrationRepositoryImpl implements ClientRegistrationRepository, Iterable<ClientRegistration> {
 
-    private Map<String, ClientRegistration> registrations;
+    private Map<String, ClientRegistration> registrations = Collections.emptyMap();
+
+    private final CustomOAuth2ClientFactory clientFactory = CustomOAuth2ClientFactory.getInstance();
 
     @Override
     public ClientRegistration findByRegistrationId(String registrationId) {
@@ -40,11 +41,14 @@ public class ClientRegistrationRepositoryImpl implements ClientRegistrationRepos
     }
 
     private static Map<String, ClientRegistration> createRegistrationsMap(List<ClientRegistration> registrations) {
-        Assert.notEmpty(registrations, "registrations cannot be empty");
+        if (registrations.isEmpty()) {
+            return Collections.emptyMap();
+        }
         ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
         for (ClientRegistration registration : registrations) {
-            Assert.state(!result.containsKey(registration.getRegistrationId()),
-                    () -> String.format("Duplicate key %s", registration.getRegistrationId()));
+            if (result.containsKey(registration.getRegistrationId())) {
+                throw new IllegalStateException(String.format("Duplicate key %s", registration.getRegistrationId()));
+            }
             result.put(registration.getRegistrationId(), registration);
         }
         return Collections.unmodifiableMap(result);
@@ -60,10 +64,9 @@ public class ClientRegistrationRepositoryImpl implements ClientRegistrationRepos
     }
 
     private void addDefaultProviders(OAuth2ClientProperties properties) {
-        //ding talk
-        DingTalkOauth2Client.addClientRegistration(properties);
-        // wechart
-        WeChartOauth2Client.addClientRegistration(properties);
+        for (String registrationId : clientFactory.registrationIds()) {
+            clientFactory.find(registrationId).get().addClientRegistration(properties);
+        }
     }
 
     @Autowired(required = false)
@@ -72,5 +75,6 @@ public class ClientRegistrationRepositoryImpl implements ClientRegistrationRepos
         List<ClientRegistration> clientList = new ArrayList<>(
                 OAuth2ClientPropertiesRegistrationAdapter.getClientRegistrations(oAuth2ClientProperties).values());
         registrations = createRegistrationsMap(clientList);
+        clientFactory.bind(registrations);
     }
 }

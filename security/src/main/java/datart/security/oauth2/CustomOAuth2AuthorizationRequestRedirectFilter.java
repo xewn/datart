@@ -29,43 +29,52 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 
 public class CustomOAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
 
+    private final CustomOAuth2ClientFactory clientFactory;
+
     private final AntPathRequestMatcher authorizationRequestMatcher = new AntPathRequestMatcher(
-            OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/{" + CustomOauth2Client.REGISTRATION_ID + "}");
+            OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/{" + AbstractCustomOauth2Client.REGISTRATION_ID + "}");
 
     public CustomOAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
+        this(clientRegistrationRepository, CustomOAuth2ClientFactory.getInstance());
+    }
+
+    CustomOAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository,
+                                                   CustomOAuth2ClientFactory clientFactory) {
         this.clientRegistrationRepository = clientRegistrationRepository;
+        this.clientFactory = clientFactory;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         ClientRegistration registration = getCustomOauth2Registration(request);
         if (registration != null) {
-            if (DingTalkOauth2Client.REGISTRATION_ID.equals(registration.getRegistrationId())) {
-                DingTalkOauth2Client oauth2Client = new DingTalkOauth2Client(registration);
-                oauth2Client.authorizationRequest(request, response);
+            Optional<AbstractCustomOauth2Client> client = clientFactory.findConfigured(registration.getRegistrationId());
+            if (client.isPresent()) {
+                client.get().authorizationRequest(request, response);
+                return;
             }
-        } else {
-            filterChain.doFilter(request, response);
         }
+        filterChain.doFilter(request, response);
     }
 
     private String resolveRegistrationId(HttpServletRequest request) {
         if (this.authorizationRequestMatcher.matches(request)) {
             return this.authorizationRequestMatcher.matcher(request).getVariables()
-                    .get(CustomOauth2Client.REGISTRATION_ID);
+                    .get(AbstractCustomOauth2Client.REGISTRATION_ID);
         }
         return null;
     }
 
     private ClientRegistration getCustomOauth2Registration(HttpServletRequest request) {
         String registrationId = resolveRegistrationId(request);
-        if (registrationId != null && CustomOauth2Client.CUSTOM_OAUTH2_CLIENTS.contains(registrationId)) {
+        if (registrationId != null && clientFactory.findConfigured(registrationId).isPresent()) {
             return clientRegistrationRepository.findByRegistrationId(registrationId);
         }
         return null;

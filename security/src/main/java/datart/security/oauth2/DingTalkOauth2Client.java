@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -43,7 +44,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 @Slf4j
-public class DingTalkOauth2Client implements CustomOauth2Client {
+public class DingTalkOauth2Client extends AbstractCustomOauth2Client {
 
     public static final String REGISTRATION_ID = "dingtalk";
 
@@ -55,13 +56,6 @@ public class DingTalkOauth2Client implements CustomOauth2Client {
 
     private static final String redirectUri = "/login/oauth2/code/" + REGISTRATION_ID;
 
-    private final ClientRegistration clientRegistration;
-
-    public DingTalkOauth2Client(ClientRegistration clientRegistration) {
-        validateRegistration(clientRegistration);
-        this.clientRegistration = clientRegistration;
-    }
-
     @Override
     public void authorizationRequest(HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -69,12 +63,12 @@ public class DingTalkOauth2Client implements CustomOauth2Client {
             uriBuilder.addParameter("prompt", "consent");
             uriBuilder.addParameter("scope", "openid");
             uriBuilder.addParameter("response_type", "code");
-            uriBuilder.addParameter("client_id", clientRegistration.getClientId());
+            uriBuilder.addParameter("client_id", getClientRegistration().getClientId());
             uriBuilder.addParameter("state", AESUtil.encrypt(SecurityUtils.randomPassword(8)));
             uriBuilder.addParameter("redirect_uri", getRedirectUrl());
             response.sendRedirect(uriBuilder.build().toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to create DingTalk authorization request", e);
         }
     }
 
@@ -88,7 +82,9 @@ public class DingTalkOauth2Client implements CustomOauth2Client {
         return url;
     }
 
-    private void validateRegistration(ClientRegistration clientRegistration) {
+    @Override
+    public String getRegistrationId() {
+        return REGISTRATION_ID;
     }
 
     @Override
@@ -98,19 +94,19 @@ public class DingTalkOauth2Client implements CustomOauth2Client {
             String state = request.getParameter("state");
 
             try {
-                String decrypt = AESUtil.decrypt(state);
+                AESUtil.decrypt(state);
             } catch (Exception e) {
                 Exceptions.msg("Failed to verify the state parameter");
             }
             String accessToken = getAccessToken(authCode);
             return getUserinfo(accessToken);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new AuthenticationServiceException("DingTalk authentication failed", e);
         }
-        return null;
     }
 
-    public static void addClientRegistration(OAuth2ClientProperties properties) {
+    @Override
+    public void addClientRegistration(OAuth2ClientProperties properties) {
         if (properties == null) {
             return;
         }
@@ -119,11 +115,7 @@ public class DingTalkOauth2Client implements CustomOauth2Client {
                     .put(REGISTRATION_ID, creatProvider());
             OAuth2ClientProperties.Registration registration = properties.getRegistration().get(REGISTRATION_ID);
             registration.setAuthorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
-            try {
-                registration.setRedirectUri(redirectUri);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            registration.setRedirectUri(redirectUri);
         }
     }
 
@@ -144,6 +136,7 @@ public class DingTalkOauth2Client implements CustomOauth2Client {
     }
 
     private String getAccessToken(String authCode) throws Exception {
+        ClientRegistration clientRegistration = getClientRegistration();
         com.aliyun.dingtalkoauth2_1_0.Client client = authClient();
         GetUserTokenRequest getUserTokenRequest = new GetUserTokenRequest()
                 .setClientId(clientRegistration.getClientId())
@@ -168,10 +161,10 @@ public class DingTalkOauth2Client implements CustomOauth2Client {
         getUserHeaders.xAcsDingtalkAccessToken = accessToken;
         GetUserResponseBody userResponseBody = client.getUserWithOptions("me", getUserHeaders, new RuntimeOptions()).getBody();
         HashMap<String, Object> attributes = new HashMap<>();
-        attributes.put(CustomOauth2Client.NAME, userResponseBody.getNick());
-        attributes.put(CustomOauth2Client.EMAIL, userResponseBody.getEmail());
-        attributes.put(CustomOauth2Client.AVATAR, userResponseBody.getAvatarUrl());
-        DefaultOAuth2User auth2User = new DefaultOAuth2User(Collections.emptyList(), attributes, CustomOauth2Client.NAME);
+        attributes.put(NAME, userResponseBody.getNick());
+        attributes.put(EMAIL, userResponseBody.getEmail());
+        attributes.put(AVATAR, userResponseBody.getAvatarUrl());
+        DefaultOAuth2User auth2User = new DefaultOAuth2User(Collections.emptyList(), attributes, NAME);
         return new OAuth2AuthenticationToken(auth2User, Collections.emptyList(), REGISTRATION_ID);
     }
 

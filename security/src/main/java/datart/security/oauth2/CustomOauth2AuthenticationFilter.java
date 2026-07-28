@@ -18,59 +18,70 @@
 
 package datart.security.oauth2;
 
-import datart.core.base.exception.Exceptions;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 public class CustomOauth2AuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-    private final static String processUrl = "/login/oauth2/code/{" + CustomOauth2Client.REGISTRATION_ID + "}";
+    private final static String processUrl = "/login/oauth2/code/{" + AbstractCustomOauth2Client.REGISTRATION_ID + "}";
 
     private final ClientRegistrationRepository clientRegistrationRepository;
+
+    private final CustomOAuth2ClientFactory clientFactory;
 
     private final AntPathRequestMatcher authorizationRequestMatcher = new AntPathRequestMatcher(processUrl);
 
     public CustomOauth2AuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository, AuthenticationSuccessHandler authenticationSuccessHandler) {
+        this(clientRegistrationRepository, authenticationSuccessHandler, CustomOAuth2ClientFactory.getInstance());
+    }
+
+    CustomOauth2AuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
+                                     AuthenticationSuccessHandler authenticationSuccessHandler,
+                                     CustomOAuth2ClientFactory clientFactory) {
         super(processUrl);
         this.clientRegistrationRepository = clientRegistrationRepository;
+        this.clientFactory = clientFactory;
         this.setAuthenticationSuccessHandler(authenticationSuccessHandler);
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String registrationId = resolveRegistrationId(request);
-        if (registrationId != null && CustomOauth2Client.CUSTOM_OAUTH2_CLIENTS.contains(registrationId)) {
-            if (DingTalkOauth2Client.REGISTRATION_ID.equals(registrationId)) {
-                ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(registrationId);
-                DingTalkOauth2Client oauth2Client = new DingTalkOauth2Client(clientRegistration);
-                return oauth2Client.getUserInfo(request, response);
-            }
+        Optional<AbstractCustomOauth2Client> client = clientFactory.findConfigured(registrationId);
+        if (!client.isPresent() || clientRegistrationRepository.findByRegistrationId(registrationId) == null) {
+            throw new AuthenticationServiceException("Custom OAuth2 client is not configured: " + registrationId);
         }
-        Exceptions.msg("oauth2 authentication error");
-        return null;
+        Authentication authentication = client.get().getUserInfo(request, response);
+        if (authentication == null) {
+            throw new AuthenticationServiceException("Custom OAuth2 provider returned no authentication: " + registrationId);
+        }
+        return authentication;
     }
 
     @Override
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        return CustomOauth2Client.CUSTOM_OAUTH2_CLIENTS.contains(resolveRegistrationId(request));
+        String registrationId = resolveRegistrationId(request);
+        return StringUtils.isNotBlank(registrationId)
+                && clientFactory.findConfigured(registrationId).isPresent()
+                && clientRegistrationRepository.findByRegistrationId(registrationId) != null;
     }
 
     private String resolveRegistrationId(HttpServletRequest request) {
         if (this.authorizationRequestMatcher.matches(request)) {
             return this.authorizationRequestMatcher.matcher(request).getVariables()
-                    .get(CustomOauth2Client.REGISTRATION_ID);
+                    .get(AbstractCustomOauth2Client.REGISTRATION_ID);
         }
         return null;
     }
