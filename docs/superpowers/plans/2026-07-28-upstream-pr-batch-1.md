@@ -78,11 +78,11 @@ Commit as `test: cover Druid recovery defaults`.
 - Create: `data-providers/data-provider-base/src/test/java/datart/data/provider/jdbc/DataTypeUtilsTest.java`
 - Modify: `data-providers/data-provider-base/src/main/java/datart/data/provider/jdbc/DataTypeUtils.java`
 
-- [ ] **Step 1: Write and run the failing type-family test**
+- [x] **Step 1: Write and run the failing type-family test**
 
 Assert `Types.INTEGER` maps to `ValueType.NUMERIC`, `Types.TIMESTAMP` maps to `ValueType.DATE`, and `Integer.MIN_VALUE` maps to `ValueType.STRING`. Run `& $mvn -pl data-providers/data-provider-base -am -Dtest=DataTypeUtilsTest -Dsurefire.failIfNoSpecifiedTests=false test`; expect a null-family failure for the unknown value.
 
-- [ ] **Step 2: Add the null-family fallback**
+- [x] **Step 2: Add the null-family fallback**
 
 Before the family switch, add:
 
@@ -92,7 +92,7 @@ if (family == null) {
 }
 ```
 
-- [ ] **Step 3: Verify and commit with provenance**
+- [x] **Step 3: Verify and commit with provenance**
 
 Rerun the focused test and commit as `fix: fall back for unknown JDBC types` with:
 
