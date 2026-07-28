@@ -25,16 +25,12 @@ import datart.core.data.provider.SelectColumn;
 import datart.core.data.provider.SingleTypedValue;
 import datart.core.data.provider.sql.*;
 import datart.data.provider.calcite.custom.CustomSqlBetweenOperator;
-import org.apache.calcite.avatica.util.Casing;
-import org.apache.calcite.avatica.util.Quoting;
 import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.fun.SqlBetweenOperator;
+import org.apache.calcite.sql.fun.SqlCase;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParseException;
-import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql.parser.SqlParserPos;
-import org.apache.calcite.sql.parser.impl.SqlParserImpl;
-import org.apache.calcite.sql.validate.SqlConformanceEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -280,29 +276,28 @@ public class SqlBuilder {
             return new SqlBasicCall(SqlStdOperatorTable.DESC,
                     new SqlNode[]{sqlNode}, SqlParserPos.ZERO);
         } else if (operator.getOperator() == OrderOperator.SqlOperator.CUSTOMIZE) {
-            // implements customize sort of single none-num field by 'case + when'
-            List<String> values = operator.getValue();
-            StringBuffer sortExpr = new StringBuffer();
-            sortExpr.append("case ");
-            for (int i = 0; i < values.size(); i++) {
-                String v = values.get(i);
-                sortExpr.append("when " + operator.getColumnKey() + " = '" + v + "' then " + i);
+            if (CollectionUtils.isEmpty(operator.getValue())) {
+                return sqlNode;
             }
-            sortExpr.append(" end");
-
-            SqlParser.Config config = SqlParser.config()
-                    .withParserFactory(SqlParserImpl.FACTORY)
-                    .withQuotedCasing(Casing.UNCHANGED)
-                    .withUnquotedCasing(Casing.UNCHANGED)
-                    .withConformance(SqlConformanceEnum.LENIENT)
-                    .withCaseSensitive(true)
-                    .withQuoting(Quoting.BRACKET);
-            try {
-                SqlParser parser = SqlParser.create(sortExpr.toString(), config);
-                return parser.parseExpression();
-            } catch (SqlParseException e) {
-                throw new RuntimeException(e);
+            Set<String> values = operator.getValue().stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            if (values.isEmpty()) {
+                return sqlNode;
             }
+            SqlNodeList whenList = new SqlNodeList(SqlParserPos.ZERO);
+            SqlNodeList thenList = new SqlNodeList(SqlParserPos.ZERO);
+            int index = 0;
+            for (String value : values) {
+                whenList.add(SqlLiteral.createCharString(value, SqlParserPos.ZERO));
+                thenList.add(SqlLiteral.createExactNumeric(String.valueOf(index++), SqlParserPos.ZERO));
+            }
+            return SqlCase.createSwitched(
+                    SqlParserPos.ZERO,
+                    sqlNode,
+                    whenList,
+                    thenList,
+                    SqlLiteral.createExactNumeric(String.valueOf(values.size()), SqlParserPos.ZERO));
         } else {
             return sqlNode;
         }

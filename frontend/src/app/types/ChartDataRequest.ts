@@ -53,6 +53,7 @@ export type ChartDataRequest = {
     column: string[];
     operator: SortActionType;
     aggOperator?: AggregateFieldActionType;
+    value?: string[];
   }>;
   pageInfo?: ChartDatasetPageInfo;
   columns?: Array<{ alias: string; column: string[] }>;

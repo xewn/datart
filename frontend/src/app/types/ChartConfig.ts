@@ -125,7 +125,7 @@ export type ChartDataSectionField = {
 
 export type SortFieldAction = {
   type: SortActionType;
-  value?: any;
+  value?: string[];
 };
 
 export type ColorFieldAction = {

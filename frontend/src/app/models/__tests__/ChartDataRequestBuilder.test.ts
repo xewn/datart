@@ -1283,6 +1283,45 @@ describe('ChartDataRequestBuild Test', () => {
     ]);
   });
 
+  test('should preserve unique values for custom ordering', () => {
+    const dataView = { id: 'view-id' } as any;
+    const chartDataConfigs = [
+      {
+        type: ChartDataSectionType.Group,
+        key: 'group',
+        rows: [
+          {
+            colName: 'region',
+            type: DataViewFieldType.STRING,
+            category: ChartDataViewFieldCategory.Field,
+            sort: {
+              type: 'CUSTOMIZE',
+              value: ["O'Reilly", 'East', 'East'],
+            },
+          },
+        ],
+      },
+    ] as any;
+
+    const requestParams = new ChartDataRequestBuilder(
+      dataView,
+      chartDataConfigs,
+      [],
+      {},
+      false,
+      true,
+    ).build();
+
+    expect(requestParams.orders).toEqual([
+      {
+        column: ['region'],
+        operator: 'CUSTOMIZE',
+        aggOperator: undefined,
+        value: ["O'Reilly", 'East'],
+      },
+    ]);
+  });
+
   test('should get orders for struct view', () => {
     const dataView = {
       id: 'view-id',

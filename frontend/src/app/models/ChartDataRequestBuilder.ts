@@ -441,26 +441,34 @@ export class ChartDataRequestBuilder {
         }
         return acc;
       }, [])
-      .filter(
-        col => {
-          const type = col?.sort?.type;
-          if (!type) {
-            return false;
-          } else if (type === SortActionType.Customize) {
-            const value = col.sort!.value;
-            return Array.isArray(value) && value.length > 0;
-          } else {
-            return [SortActionType.ASC, SortActionType.DESC].includes(type);
-          }
+      .filter(col => {
+        const type = col?.sort?.type;
+        if (!type) {
+          return false;
+        } else if (type === SortActionType.Customize) {
+          const value = col.sort!.value;
+          return (
+            Array.isArray(value) && value.some(item => typeof item === 'string')
+          );
+        } else {
+          return [SortActionType.ASC, SortActionType.DESC].includes(type);
         }
-      );
+      });
 
-    const originalSorters = sortColumns.map(aggCol => ({
-      column: this.buildColumnName(aggCol),
-      operator: aggCol.sort?.type!,
-      aggOperator: aggCol.aggregate,
-      value: aggCol.sort?.type === SortActionType.Customize ? aggCol.sort.value! : undefined,
-    }));
+    const originalSorters = sortColumns.map(aggCol => {
+      const customValues = aggCol.sort?.value?.filter(
+        value => typeof value === 'string',
+      );
+      return {
+        column: this.buildColumnName(aggCol),
+        operator: aggCol.sort?.type!,
+        aggOperator: aggCol.aggregate,
+        value:
+          aggCol.sort?.type === SortActionType.Customize
+            ? Array.from(new Set(customValues))
+            : undefined,
+      };
+    });
 
     const _extraSorters = this.extraSorters
       ?.filter(({ column, operator }) => column && operator)
