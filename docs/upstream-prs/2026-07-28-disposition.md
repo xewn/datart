@@ -35,7 +35,7 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #2283 | Column permission fixes | `fe6bfbc51865fabd44e36f41525259b0bb35d21a` | master | adapted | `74a1f1b4` | focused permission tests; full test/package passed | Upstream review requested changes; permission matching must avoid unsafe sentinels and regex injection. |
 | #2277 | COUNT DISTINCT ordering | `145c0557d9523fa64d1f68fff0ba4f7d92e3ae34` | dev | direct | `e221d36d`, test `0e8fd5de` | focused SQL test; full test/package passed | Focused SQL rendering correction. |
 | #2263 | Trim CSV values before formatting | `35c5d727ce61aac050489bd58d7e59edebbc17e3` | dev | direct | `47636d41`, test `798eab89` | focused parser tests; full test/package passed | Focused parser behavior with whitespace regression tests. |
-| #2261 | Show the added Story page | `0faca75ea799bebf8c239fce5e35c7e8a28aa88d` | dev | direct | pending Batch 3 | pending Batch 3 | Contained Story UI behavior. |
+| #2261 | Show the added Story page | `0faca75ea799bebf8c239fce5e35c7e8a28aa88d` | dev | direct | `22c98b9e`, `baf0910e`, test `a1d709b3` | focused modal test; full frontend/Maven gates passed | Preserves the two official commits and adds regression coverage for existing-page selection. |
 | #2236 | Docker Compose and build layout | `6064f28d687a858a2f394bf48bca4fadb798ba03` | dev | adapted | pending Batch 5 | pending Batch 5 | Build and image references require current validation without changing assembly semantics. |
 | #2203 | Dashboard custom button widget | `bce86d2495848058c4a98840114700b7ecd6505c` | dev | adapted | pending Batch 4 | pending Batch 4 | Feature needs migration, serialization, navigation, and accessibility coverage. |
 | #2198 | Shared chart event refresh | `60815c73df40a9722e3386cb9010a10ccd1bf476` | master | adapted | `eeda2414` | focused hook lifecycle test; full frontend/Maven gates passed | Mount-only replacement needs stable registration and cleanup. |
@@ -47,12 +47,24 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #2165 | MongoDB document data provider | `b0b01ac83cd47ccd710ed51e2eb7c90710812588` | master | adapted | pending Batch 5 | pending Batch 5 | Provider requires lifecycle, parsing, loading, packaging, and configuration validation. |
 | #2131 | Duplicate Excel sheet names | `dc26f7be11bc4b624195507596227c3006645d83` | dev | adapted | `f815b142` | focused workbook test; full test/package passed | Upstream suffix logic can create secondary collisions and invalid Excel names. |
 | #2089 | Previous month and year time ranges | `95023762062e02c4687bab9bdf8f446e1f15412d` | master | direct | `c792b230`, test `7e62eac1` | focused fixed-clock tests; full frontend/Maven gates passed | Behavior is focused but needs stale-conflict resolution and fixed-clock tests. |
-| #2033 | Pivot table diagonal header | `9a1a9f9f8876656af6be2c7c1b538262a4abe160` | dev | adapted | pending Batch 3 | pending Batch 3 | Contained visual feature requires persistence and visual verification. |
+| #2033 | Pivot table diagonal header | `9a1a9f9f8876656af6be2c7c1b538262a4abe160` | dev | adapted | `5e26cb2c` | focused configuration/renderer tests and shape snapshot; full frontend/Maven gates passed | Uses the current S2 `addShape` surface and leaves the native corner renderer untouched when disabled. |
 | #2016 | OAuth2 client SPI | `a4776fc9c6226ad5e74af7606a076de355be0375` | dev | adapted | pending Batch 5 | pending Batch 5 | Security-sensitive extension requires fail-closed discovery and authentication tests. |
 | #1969 | Period-over-period calculation | `4a197070628b8e472e39c98ff5784f0a2468aaac` | dev | adapted | pending Batch 5 | pending Batch 5 | PR conflicts and discussion identifies a potentially missing file. |
 | #1816 | Disallow negative grid values | `901a8c42cfffb0f433217d4fdf8eb07a49d41c42` | dev | rejected | not applicable | source review | Negative grid values are valid existing behavior and no product rule justifies removal. |
 
 Disposition totals: 10 direct, 17 adapted, 3 absorbed, and 3 rejected.
+
+## Batch 3 Story and Pivot Features
+
+- Integrated #2261 as its 2 official commits plus 1 regression-test commit, and adapted #2033 as 1 provenance-preserving implementation/test commit.
+- Focused gate: 2 Jest suites and 5 tests passed, including 1 diagonal-header shape snapshot, with zero failures, zero errors, and zero skips.
+- Frontend type gate: `npm run checkTs` exited 0 under Node 16.20.2 and npm 8.19.4.
+- Full Jest gate: 89 suites passed; 672 tests passed, 5 skipped, 677 total; 5 snapshots passed.
+- Frontend production gate: `npm run build:all` exited 0, covering theme extraction, the Rollup task bundle, and the React production build.
+- Full repository test gate: `mvn test` exited 0 under Java 8 and Node 16. Fifteen Surefire reports recorded 31 tests, with 30 passed, 1 existing skip, zero failures, and zero errors.
+- Package gate: offline `mvn -DskipTests package` exited 0.
+- Install artifact: `datart-server-1.0.0-rc.3-install.zip` is 159,833,554 bytes with SHA-256 `B36DA7F9853BC60F2DAC9D6CD758673744E7DB4BFA1D1BAD5B8FF844FCB30391`.
+- Repository hygiene: generated `frontend/package-lock.json` drift was restored, build outputs remain ignored, and the tracked worktree was clean before evidence updates.
 
 ## Batch 2 Frontend Bug Fixes
 
