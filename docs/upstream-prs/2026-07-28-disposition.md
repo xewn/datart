@@ -36,7 +36,7 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #2277 | COUNT DISTINCT ordering | `145c0557d9523fa64d1f68fff0ba4f7d92e3ae34` | dev | direct | `e221d36d`, test `0e8fd5de` | focused SQL test; full test/package passed | Focused SQL rendering correction. |
 | #2263 | Trim CSV values before formatting | `35c5d727ce61aac050489bd58d7e59edebbc17e3` | dev | direct | `47636d41`, test `798eab89` | focused parser tests; full test/package passed | Focused parser behavior with whitespace regression tests. |
 | #2261 | Show the added Story page | `0faca75ea799bebf8c239fce5e35c7e8a28aa88d` | dev | direct | `22c98b9e`, `baf0910e`, test `a1d709b3` | focused modal test; full frontend/Maven gates passed | Preserves the two official commits and adds regression coverage for existing-page selection. |
-| #2236 | Docker Compose and build layout | `6064f28d687a858a2f394bf48bca4fadb798ba03` | dev | adapted | pending Batch 5 | pending Batch 5 | Build and image references require current validation without changing assembly semantics. |
+| #2236 | Docker Compose and build layout | `6064f28d687a858a2f394bf48bca4fadb798ba03` | dev | adapted | `eb2b7fd1` | Compose syntax, assembly test, ZIP modes/content, and full gates passed | Preserved dependency-set assembly while adding a non-root Java 8 image, persistent runtime paths, and portable Compose packaging. |
 | #2203 | Dashboard custom button widget | `bce86d2495848058c4a98840114700b7ecd6505c` | dev | adapted | `9a9b0451`, `b126fba2` | focused navigation tests; full frontend/Maven gates passed | Added a first-class widget with normalized navigation, empty-target safety, localization, and accessible naming. |
 | #2198 | Shared chart event refresh | `60815c73df40a9722e3386cb9010a10ccd1bf476` | master | adapted | `eeda2414` | focused hook lifecycle test; full frontend/Maven gates passed | Mount-only replacement needs stable registration and cleanup. |
 | #2196 | Restore date-level computed fields | `f90068338676e201939cc410dac817deff80dfa1` | master | direct | `c3252b54`, test `03c62689` | focused thunk tests; full frontend/Maven gates passed | Focused backend-chart conversion behavior. |
@@ -44,15 +44,28 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #2189 | Batch query variables by view IDs | `bd94783c613c27ef6b3eb4a7ca2d04b6abcb71f0` | dev | adapted | `f045e093` | focused service tests; full test/package passed | Batch query needs an empty-set guard and deterministic coverage. |
 | #2172 | Empty merge PR | `f622bdb5794c6f2ba92386dfceaeaa469af4f2a2` | master | rejected | not applicable | source review | PR changes zero files and has no behavior to adopt. |
 | #2170 | Variables passed through SQL functions | `da5338edcc18bacb66a8a0daf88db7702650d439` | dev | adapted | `2ff47187` | focused resolver tests; full test/package passed | Upstream regex is over-broad and needs narrow parser tests. |
-| #2165 | MongoDB document data provider | `b0b01ac83cd47ccd710ed51e2eb7c90710812588` | master | adapted | pending Batch 5 | pending Batch 5 | Provider requires lifecycle, parsing, loading, packaging, and configuration validation. |
+| #2165 | MongoDB document data provider | `b0b01ac83cd47ccd710ed51e2eb7c90710812588` | master | adapted | `1e487014` | 5 focused tests, SPI/JAR inspection, and full gates passed | Added read-only command validation, deterministic BSON conversion, source-isolated clients, and explicit reset/close lifecycle. |
 | #2131 | Duplicate Excel sheet names | `dc26f7be11bc4b624195507596227c3006645d83` | dev | adapted | `f815b142` | focused workbook test; full test/package passed | Upstream suffix logic can create secondary collisions and invalid Excel names. |
 | #2089 | Previous month and year time ranges | `95023762062e02c4687bab9bdf8f446e1f15412d` | master | direct | `c792b230`, test `7e62eac1` | focused fixed-clock tests; full frontend/Maven gates passed | Behavior is focused but needs stale-conflict resolution and fixed-clock tests. |
 | #2033 | Pivot table diagonal header | `9a1a9f9f8876656af6be2c7c1b538262a4abe160` | dev | adapted | `5e26cb2c` | focused configuration/renderer tests and shape snapshot; full frontend/Maven gates passed | Uses the current S2 `addShape` surface and leaves the native corner renderer untouched when disabled. |
-| #2016 | OAuth2 client SPI | `a4776fc9c6226ad5e74af7606a076de355be0375` | dev | adapted | pending Batch 5 | pending Batch 5 | Security-sensitive extension requires fail-closed discovery and authentication tests. |
-| #1969 | Period-over-period calculation | `4a197070628b8e472e39c98ff5784f0a2468aaac` | dev | adapted | pending Batch 5 | pending Batch 5 | PR conflicts and discussion identifies a potentially missing file. |
+| #2016 | OAuth2 client SPI | `a4776fc9c6226ad5e74af7606a076de355be0375` | dev | adapted | `fe1fc578` | 11 security tests, SPI/JAR inspection, and full gates passed | Rebuilt discovery as an immutable fail-closed registry, retained standard TLS verification, and added DingTalk/WeChat routing coverage. |
+| #1969 | Period-over-period calculation | `4a197070628b8e472e39c98ff5784f0a2468aaac` | dev | adapted | `1f6f37ee` | 4 backend and 141 focused frontend tests; full gates passed | Rebuilt the conflicted feature with stateless calculators, alias-based lookup, copied supplementary queries, and null-safe ratios. |
 | #1816 | Disallow negative grid values | `901a8c42cfffb0f433217d4fdf8eb07a49d41c42` | dev | rejected | not applicable | source review | Negative grid values are valid existing behavior and no product rule justifies removal. |
 
 Disposition totals: 10 direct, 17 adapted, 3 absorbed, and 3 rejected.
+
+## Batch 5 Platform, Provider, Security, and Calculations
+
+- Integrated #2236, #2165, #2016, and #1969 as four provenance-preserving adapted commits.
+- Focused backend gates: MongoDB provider 5 tests, OAuth/security 11 tests, and period comparison 4 tests passed with zero failures, errors, or skips.
+- Focused frontend gates: request builder, chart helper, and advanced-calculation availability suites passed 141 tests; `npm run checkTs` exited 0.
+- Full Jest gate: 92 suites passed; 683 tests passed, 5 skipped, 688 total; 5 snapshots passed.
+- Frontend production gate: the Maven-bound `npm run build:all` exited 0 twice under Node 16.20.2 and npm 8.19.4.
+- Full repository test gate: `mvn test` exited 0 under Java 8 and Node 16. Surefire recorded 50 tests, with 49 passed, 1 existing skip, zero failures, and zero errors.
+- Package gate: offline `mvn -DskipTests package` exited 0; Compose syntax validation also exited 0.
+- Install artifact: `datart-server-1.0.0-rc.3-install.zip` is 185,354,215 bytes with SHA-256 `14CF06AEAD6638C8345E061990EF103BABD1224D43347AC7352F4215A157DD29`.
+- Package inspection: launch scripts are `100755`; Docker/Compose files, MongoDB provider JAR, OAuth/security JAR, and both ServiceLoader descriptors are present.
+- Repository hygiene: generated `frontend/package-lock.json` drift was restored, build outputs remain ignored, and the tracked product worktree was clean before evidence updates.
 
 ## Batch 4 Cross-Layer Features
 
