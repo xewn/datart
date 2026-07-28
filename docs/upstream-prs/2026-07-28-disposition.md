@@ -21,10 +21,10 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #2368 | Reset removed join table state | `6b3f35d11dbe443a84220ef4b9397b08502e5ff0` | master | direct | pending Batch 2 | pending Batch 2 | Focused stale-state fix. |
 | #2366 | Dashboard jump date parameter | `7f17c3ff2fd25caa6cd06052c95d594058587d72` | dev | absorbed | owned by #2350 | pending Batch 2 | Duplicate of the later null-safe date-controller implementation. |
 | #2365 | Custom dashboard dialog sizing | `98cd750a9dd22e83814b0cd724d0f4e768fbb8f1` | dev | adapted | pending Batch 4 | pending Batch 4 | Feature is useful, but the branch contains temporary commits, generated H2 data, local config, lock churn, and default-value defects. |
-| #2360 | Druid connection recovery defaults | `fe0e8c8e5b3b7a30fa03aeadd5a757665d3d825e` | dev | direct | pending Batch 1 | pending Batch 1 | Focused recovery behavior with testable configuration. |
-| #2359 | Skip archived sources in schema sync | `ce8fb90c7825b0dfcf278d412d01e114ca833648` | dev | direct | pending Batch 1 | pending Batch 1 | Prevents unnecessary jobs for archived sources. |
-| #2356 | Refresh cached JDBC provider after source update | `7244f9317853652963b157858af2cfe27d69fcfc` | dev | adapted | pending Batch 1 | pending Batch 1 | Required for multi-node consistency, with atomic replacement and lifecycle coverage added. |
-| #2354 | Unknown JDBC type fallback | `c3caeec8db318691f297076a502a7c2c6aa6fd9d` | master | adapted | pending Batch 1 | pending Batch 1 | Preserve null safety while testing known and unknown families. |
+| #2360 | Druid connection recovery defaults | `fe0e8c8e5b3b7a30fa03aeadd5a757665d3d825e` | dev | direct | `70552639`, test `c7887cc6` | focused regression; full test/package passed | Focused recovery behavior with testable configuration. |
+| #2359 | Skip archived sources in schema sync | `ce8fb90c7825b0dfcf278d412d01e114ca833648` | dev | direct | `c91458d5`, test `69920ba0` | focused regression; full test/package passed | Prevents unnecessary jobs for archived sources. |
+| #2356 | Refresh cached JDBC provider after source update | `7244f9317853652963b157858af2cfe27d69fcfc` | dev | adapted | `6015cae3` | focused concurrency tests; full test/package passed | Required for multi-node consistency, with atomic replacement and lifecycle coverage added. |
+| #2354 | Unknown JDBC type fallback | `c3caeec8db318691f297076a502a7c2c6aa6fd9d` | master | adapted | `1cec6735` | focused type-family test; full test/package passed | Preserve null safety while testing known and unknown families. |
 | #2350 | Date controller and listener leak fixes | `e910efdab3710a3946ed880c244d8b9ca0d4ffbf` | master | adapted | pending Batch 2 | pending Batch 2 | Split unrelated date and stable-listener fixes into independently verified commits. |
 | #2346 | Avoid redundant chart resize on loading changes | `6af405c69f8777de1307b57cb3a1e87535f15840` | dev | direct | pending Batch 2 | pending Batch 2 | Focused lifecycle dependency correction. |
 | #2330 | URL date range controller fix | `9875ce2507b5ef6ee844f78040c7166239d7578a` | master | absorbed | owned by #2350 | pending Batch 2 | Behavior is identical to the date portion of #2350. |
@@ -32,20 +32,20 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #2309 | URL date controller fix | `c7659846d8e229435da5db1d360f60851cd54847` | dev | absorbed | owned by #2350 | pending Batch 2 | Superseded by the later optional-access date fix. |
 | #2305 | Add OpenSSL option with Unix export | `f393b298294e4a4a4d97542787db9a93c38c406a` | master | rejected | not applicable | source review | Unix-only `export` breaks Windows and is unnecessary for the pinned Node 16 runtime. |
 | #2287 | Custom table and pivot sorting | `337b3ac26d255e187a252bb41c11902bb228a014` | master | adapted | pending Batch 4 | pending Batch 4 | Cross-layer feature needs request, SQL, migration, and UI coverage. |
-| #2283 | Column permission fixes | `fe6bfbc51865fabd44e36f41525259b0bb35d21a` | master | adapted | pending Batch 1 | pending Batch 1 | Upstream review requested changes; permission matching must avoid unsafe sentinels and regex injection. |
-| #2277 | COUNT DISTINCT ordering | `145c0557d9523fa64d1f68fff0ba4f7d92e3ae34` | dev | direct | pending Batch 1 | pending Batch 1 | Focused SQL rendering correction. |
-| #2263 | Trim CSV values before formatting | `35c5d727ce61aac050489bd58d7e59edebbc17e3` | dev | direct | pending Batch 1 | pending Batch 1 | Focused parser behavior with whitespace regression tests. |
+| #2283 | Column permission fixes | `fe6bfbc51865fabd44e36f41525259b0bb35d21a` | master | adapted | `74a1f1b4` | focused permission tests; full test/package passed | Upstream review requested changes; permission matching must avoid unsafe sentinels and regex injection. |
+| #2277 | COUNT DISTINCT ordering | `145c0557d9523fa64d1f68fff0ba4f7d92e3ae34` | dev | direct | `e221d36d`, test `0e8fd5de` | focused SQL test; full test/package passed | Focused SQL rendering correction. |
+| #2263 | Trim CSV values before formatting | `35c5d727ce61aac050489bd58d7e59edebbc17e3` | dev | direct | `47636d41`, test `798eab89` | focused parser tests; full test/package passed | Focused parser behavior with whitespace regression tests. |
 | #2261 | Show the added Story page | `0faca75ea799bebf8c239fce5e35c7e8a28aa88d` | dev | direct | pending Batch 3 | pending Batch 3 | Contained Story UI behavior. |
 | #2236 | Docker Compose and build layout | `6064f28d687a858a2f394bf48bca4fadb798ba03` | dev | adapted | pending Batch 5 | pending Batch 5 | Build and image references require current validation without changing assembly semantics. |
 | #2203 | Dashboard custom button widget | `bce86d2495848058c4a98840114700b7ecd6505c` | dev | adapted | pending Batch 4 | pending Batch 4 | Feature needs migration, serialization, navigation, and accessibility coverage. |
 | #2198 | Shared chart event refresh | `60815c73df40a9722e3386cb9010a10ccd1bf476` | master | adapted | pending Batch 2 | pending Batch 2 | Mount-only replacement needs stable registration and cleanup. |
 | #2196 | Restore date-level computed fields | `f90068338676e201939cc410dac817deff80dfa1` | master | direct | pending Batch 2 | pending Batch 2 | Focused backend-chart conversion behavior. |
 | #2192 | BigQuery aggregate aliases and adapter | `b381d4b564718b14680c05dc14953551e88fe5c1` | master | adapted | pending Batch 4 | pending Batch 4 | Global alias changes must become dialect-aware. |
-| #2189 | Batch query variables by view IDs | `bd94783c613c27ef6b3eb4a7ca2d04b6abcb71f0` | dev | adapted | pending Batch 1 | pending Batch 1 | Batch query needs an empty-set guard and deterministic coverage. |
+| #2189 | Batch query variables by view IDs | `bd94783c613c27ef6b3eb4a7ca2d04b6abcb71f0` | dev | adapted | `f045e093` | focused service tests; full test/package passed | Batch query needs an empty-set guard and deterministic coverage. |
 | #2172 | Empty merge PR | `f622bdb5794c6f2ba92386dfceaeaa469af4f2a2` | master | rejected | not applicable | source review | PR changes zero files and has no behavior to adopt. |
-| #2170 | Variables passed through SQL functions | `da5338edcc18bacb66a8a0daf88db7702650d439` | dev | adapted | pending Batch 1 | pending Batch 1 | Upstream regex is over-broad and needs narrow parser tests. |
+| #2170 | Variables passed through SQL functions | `da5338edcc18bacb66a8a0daf88db7702650d439` | dev | adapted | `2ff47187` | focused resolver tests; full test/package passed | Upstream regex is over-broad and needs narrow parser tests. |
 | #2165 | MongoDB document data provider | `b0b01ac83cd47ccd710ed51e2eb7c90710812588` | master | adapted | pending Batch 5 | pending Batch 5 | Provider requires lifecycle, parsing, loading, packaging, and configuration validation. |
-| #2131 | Duplicate Excel sheet names | `dc26f7be11bc4b624195507596227c3006645d83` | dev | adapted | pending Batch 1 | pending Batch 1 | Upstream suffix logic can create secondary collisions and invalid Excel names. |
+| #2131 | Duplicate Excel sheet names | `dc26f7be11bc4b624195507596227c3006645d83` | dev | adapted | `f815b142` | focused workbook test; full test/package passed | Upstream suffix logic can create secondary collisions and invalid Excel names. |
 | #2089 | Previous month and year time ranges | `95023762062e02c4687bab9bdf8f446e1f15412d` | master | direct | pending Batch 2 | pending Batch 2 | Behavior is focused but needs stale-conflict resolution and fixed-clock tests. |
 | #2033 | Pivot table diagonal header | `9a1a9f9f8876656af6be2c7c1b538262a4abe160` | dev | adapted | pending Batch 3 | pending Batch 3 | Contained visual feature requires persistence and visual verification. |
 | #2016 | OAuth2 client SPI | `a4776fc9c6226ad5e74af7606a076de355be0375` | dev | adapted | pending Batch 5 | pending Batch 5 | Security-sensitive extension requires fail-closed discovery and authentication tests. |
@@ -53,6 +53,15 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #1816 | Disallow negative grid values | `901a8c42cfffb0f433217d4fdf8eb07a49d41c42` | dev | rejected | not applicable | source review | Negative grid values are valid existing behavior and no product rule justifies removal. |
 
 Disposition totals: 10 direct, 17 adapted, 3 absorbed, and 3 rejected.
+
+## Batch 1 Backend Correctness and Data
+
+- Integrated 10 PRs as 14 implementation and regression-test commits while preserving direct-PR authorship and adapted-PR provenance trailers.
+- Focused gate: 12 test classes, 24 tests passed, with zero failures, zero errors, and zero skips.
+- Full test gate: `mvn test` exited 0 under Java 8 and Node 16. All 9 Reactor modules succeeded; 31 backend tests ran, with 30 passed, 1 existing skip, zero failures, and zero errors.
+- Package gate: offline `mvn -DskipTests package` exited 0 after the Maven dependency cache was populated. All 9 Reactor modules succeeded.
+- Install artifact: `datart-server-1.0.0-rc.3-install.zip` is 141,128,536 bytes with SHA-256 `A7E04DD4CA37AE7A8F676B6E5910F513A207D57D2EBEC0CCE0EE3C0FA7285AAE`.
+- Repository hygiene: the Maven-generated `frontend/package-lock.json` delta was restored, build outputs remain ignored, and no unexpected tracked artifact remains.
 
 ## Batch 0 Baseline
 

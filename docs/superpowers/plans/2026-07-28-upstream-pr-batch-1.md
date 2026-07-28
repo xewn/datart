@@ -266,11 +266,11 @@ Run focused tests and commit as `fix: generate unique Excel sheet names` with PR
 - Modify: `docs/upstream-prs/2026-07-28-disposition.md`
 - Modify: `docs/superpowers/plans/2026-07-28-upstream-pr-batch-1.md`
 
-- [ ] **Step 1: Run all focused Batch 1 tests together**
+- [x] **Step 1: Run all focused Batch 1 tests together**
 
 Run module-scoped tests for all new test classes with Java 8. Expected: zero failures and zero errors.
 
-- [ ] **Step 2: Run the full backend gate**
+- [x] **Step 2: Run the full backend gate**
 
 ```powershell
 & $mvn test
@@ -278,7 +278,7 @@ Run module-scoped tests for all new test classes with Java 8. Expected: zero fai
 
 Expected: all 9 Reactor modules succeed. Maven must use Node 16/npm 8 for the embedded frontend build.
 
-- [ ] **Step 3: Run the package gate**
+- [x] **Step 3: Run the package gate**
 
 ```powershell
 & $mvn -DskipTests package
@@ -286,10 +286,10 @@ Expected: all 9 Reactor modules succeed. Maven must use Node 16/npm 8 for the em
 
 Expected: all modules succeed and the install ZIP is regenerated without tracked build artifacts.
 
-- [ ] **Step 4: Update all ten ledger rows**
+- [x] **Step 4: Update all ten ledger rows**
 
 Replace `pending Batch 1` in the integration and verification columns for PRs `#2360`, `#2359`, `#2356`, `#2354`, `#2283`, `#2277`, `#2263`, `#2189`, `#2170`, and `#2131` with the exact integration commit and focused/full gate evidence.
 
-- [ ] **Step 5: Verify and commit Batch 1 evidence**
+- [x] **Step 5: Verify and commit Batch 1 evidence**
 
 Run `git diff --check`, verify no Batch 1 row remains pending, verify the worktree contains no unexpected tracked artifact, mark every plan checkbox complete, and commit as `docs: record Batch 1 PR integrations`.
