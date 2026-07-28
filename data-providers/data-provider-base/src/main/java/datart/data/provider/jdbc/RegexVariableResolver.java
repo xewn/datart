@@ -68,36 +68,71 @@ public class RegexVariableResolver {
     private static List<VariablePlaceholder> createPlaceholder(SqlDialect sqlDialect, String sql, String variableFragment, ScriptVariable variable) {
 
         List<VariablePlaceholder> placeholders = new LinkedList<>();
+        List<VariableExpressionMatch> parsedExpressions = new LinkedList<>();
 
-        List<String> variableExpressions = tryMatchVariableExpression(sql, variableFragment);
+        List<VariableExpressionMatch> variableExpressions = tryMatchVariableExpression(sql, variableFragment);
 
-        if (!CollectionUtils.isEmpty(variableExpressions)) {
-            for (String expression : variableExpressions) {
-                SqlCall sqlCall = parseAsSqlCall(expression, variableFragment);
-                if (sqlCall != null) {
-                    placeholders.add(new VariablePlaceholder(Collections.singletonList(variable), sqlDialect, sqlCall, expression));
-                } else {
-                    placeholders.add(new SimpleVariablePlaceholder(variable, sqlDialect, variableFragment));
-                }
+        for (VariableExpressionMatch expression : variableExpressions) {
+            SqlCall sqlCall = parseAsSqlCall(expression.getExpression(), variableFragment);
+            if (sqlCall != null) {
+                placeholders.add(new VariablePlaceholder(
+                        Collections.singletonList(variable), sqlDialect, sqlCall, expression.getExpression()));
+                parsedExpressions.add(expression);
             }
-        } else {
+        }
+
+        if (hasUnmatchedOccurrence(sql, variableFragment, parsedExpressions)) {
             placeholders.add(new SimpleVariablePlaceholder(variable, sqlDialect, variableFragment));
         }
         return placeholders;
     }
 
 
-    private static List<String> tryMatchVariableExpression(String sql, String variableFragment) {
-        String reg = String.format(REG_VARIABLE_EXPRESSION_TEMPLATE, variableFragment.replace("$", "\\$"));
+    private static List<VariableExpressionMatch> tryMatchVariableExpression(String sql, String variableFragment) {
+        String reg = String.format(REG_VARIABLE_EXPRESSION_TEMPLATE, Pattern.quote(variableFragment));
         Pattern pattern = Pattern.compile(reg, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(sql);
 
-        List<String> expressions = new LinkedList<>();
+        List<VariableExpressionMatch> expressions = new LinkedList<>();
 
         while (matcher.find()) {
-            expressions.add(matcher.group());
+            expressions.add(new VariableExpressionMatch(matcher.group(), matcher.start(), matcher.end()));
         }
         return expressions;
+    }
+
+    private static boolean hasUnmatchedOccurrence(String sql, String variableFragment,
+                                                  List<VariableExpressionMatch> parsedExpressions) {
+        Matcher matcher = Pattern.compile(Pattern.quote(variableFragment), Pattern.CASE_INSENSITIVE).matcher(sql);
+        while (matcher.find()) {
+            boolean covered = parsedExpressions.stream()
+                    .anyMatch(expression -> expression.contains(matcher.start(), matcher.end()));
+            if (!covered) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static class VariableExpressionMatch {
+
+        private final String expression;
+        private final int start;
+        private final int end;
+
+        private VariableExpressionMatch(String expression, int start, int end) {
+            this.expression = expression;
+            this.start = start;
+            this.end = end;
+        }
+
+        private String getExpression() {
+            return expression;
+        }
+
+        private boolean contains(int occurrenceStart, int occurrenceEnd) {
+            return start <= occurrenceStart && end >= occurrenceEnd;
+        }
     }
 
     public static SqlCall parseAsSqlCall(String variableExpression, String variableFragment) {

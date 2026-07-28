@@ -126,7 +126,7 @@ Commit as `test: cover count distinct ordering`.
 - Create: `data-providers/data-provider-base/src/test/java/datart/data/provider/jdbc/RegexVariableResolverTest.java`
 - Modify: `data-providers/data-provider-base/src/main/java/datart/data/provider/jdbc/RegexVariableResolver.java`
 
-- [ ] **Step 1: Write fallback-regression tests**
+- [x] **Step 1: Write fallback-regression tests**
 
 Use the issue's essential expression:
 
@@ -136,15 +136,15 @@ parent_path LIKE concat('%', $VAR$, '%') OR enterprise_code = $VAR$
 
 Resolve a string query variable with value `aabbcc`, apply returned replacement pairs in normal resolver order, and assert no `$VAR$` remains, the `concat` call is intact, and the direct equality is still handled as a comparison. Also assert ordinary `age >= $AGE$` behavior remains unchanged.
 
-- [ ] **Step 2: Run the red test**
+- [x] **Step 2: Run the red test**
 
 Run the data-provider-base focused test and expect the variable nested in `concat` to remain unresolved when another direct expression is matched.
 
-- [ ] **Step 3: Implement range-aware fallback**
+- [x] **Step 3: Implement range-aware fallback**
 
 Keep the existing supported-operator expression matching narrow. Record the matched expression ranges for each variable; create normal `VariablePlaceholder` objects for direct comparison ranges and add one `SimpleVariablePlaceholder` when any occurrence lies outside those ranges. Quote the variable fragment with `Pattern.quote` rather than interpolating regex metacharacters.
 
-- [ ] **Step 4: Verify and commit with provenance**
+- [x] **Step 4: Verify and commit with provenance**
 
 Run the focused tests and commit as `fix: replace variables nested in SQL functions` with PR `#2170`, source SHA `da5338edcc18bacb66a8a0daf88db7702650d439`, and `Co-authored-by: mayu <qtt-elx1w0hdf@dingtalk.com>`.
 
