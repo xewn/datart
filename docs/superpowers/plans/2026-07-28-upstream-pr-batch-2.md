@@ -139,19 +139,19 @@ Commit as `test: cover missing basic table rows`.
 - Create: `frontend/src/app/hooks/__tests__/useChartMouseEvents.test.tsx`
 - Modify: `frontend/src/app/pages/SharePage/Chart/ChartPreviewBoardForShare.tsx`
 
-- [ ] **Step 1: Write hook lifecycle tests**
+- [x] **Step 1: Write hook lifecycle tests**
 
 Use a tiny React harness with mock chart objects. Assert initial render registers one event array, rerender with identical chart/events does not register again, replacing the chart clears the old chart with `registerMouseEvents([])` before registering the new chart, changing the memoized event array replaces it once, and unmount clears the current chart.
 
-- [ ] **Step 2: Run the red test**
+- [x] **Step 2: Run the red test**
 
 Expected: FAIL because registration is currently tied to the initial data-fetch callback and has no stable replacement/cleanup lifecycle.
 
-- [ ] **Step 3: Implement stable registration**
+- [x] **Step 3: Implement stable registration**
 
 Add the focused hook using `useEffect([chart, events])`. In `ChartPreviewBoardForShare`, build the click-event array with `useMemo`/stable callback dependencies and pass it to the hook. Remove registration from the fetch callback. Ensure event callbacks see current preview/filter/drill state and repeated renders do not accumulate listeners.
 
-- [ ] **Step 4: Verify and commit with provenance**
+- [x] **Step 4: Verify and commit with provenance**
 
 Run the hook test and any touched share-chart test. Commit as `fix: refresh shared chart mouse events` with PR #2198, source SHA `60815c73df40a9722e3386cb9010a10ccd1bf476`, and `Co-authored-by: elaine <766205010@qq.com>`.
 

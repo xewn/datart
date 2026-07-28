@@ -23,13 +23,14 @@ import { ChartIFrameContainer } from 'app/components/ChartIFrameContainer';
 import { InteractionMouseEvent } from 'app/components/FormGenerator/constants';
 import { ChartInteractionEvent } from 'app/constants';
 import useChartInteractions from 'app/hooks/useChartInteractions';
+import { useChartMouseEvents } from 'app/hooks/useChartMouseEvents';
 import useDebouncedLoadingStatus from 'app/hooks/useDebouncedLoadingStatus';
 import useMount from 'app/hooks/useMount';
 import useResizeObserver from 'app/hooks/useResizeObserver';
 import ChartManager from 'app/models/ChartManager';
 import useDisplayJumpVizDialog from 'app/pages/MainPage/pages/VizPage/hooks/useDisplayJumpVizDialog';
 import useDisplayViewDetail from 'app/pages/MainPage/pages/VizPage/hooks/useDisplayViewDetail';
-import { IChart } from 'app/types/Chart';
+import { ChartMouseEvent, IChart } from 'app/types/Chart';
 import { IChartDrillOption } from 'app/types/ChartDrillOption';
 import {
   chartSelectionEventListener,
@@ -130,7 +131,6 @@ const ChartPreviewBoardForShare: FC<{
           filterSearchParams,
         }),
       );
-      registerChartEvents(chart);
     });
 
     const buildDrillThroughEventParams = useCallback(
@@ -274,8 +274,34 @@ const ChartPreviewBoardForShare: FC<{
       buildViewDataEventParams,
     ]);
 
-    const registerChartEvents = chart => {
-      chart?.registerMouseEvents([
+    const handleFilterChange = (type, payload) => {
+      dispatch(
+        updateFilterAndFetchDatasetForShare({
+          backendChartId: chartPreview?.backendChart?.id!,
+          chartPreview,
+          payload,
+          drillOption: drillOptionRef?.current,
+        }),
+      );
+    };
+
+    const handleDrillOptionChange = useCallback(
+      (option: IChartDrillOption) => {
+        drillOptionRef.current = option;
+        dispatch(
+          updateFilterAndFetchDatasetForShare({
+            backendChartId: chartPreview?.backendChart?.id!,
+            chartPreview,
+            payload: null,
+            drillOption: drillOptionRef?.current,
+          }),
+        );
+      },
+      [chartPreview, dispatch],
+    );
+
+    const chartMouseEvents = useMemo<ChartMouseEvent[]>(
+      () => [
         {
           name: 'click',
           callback: param => {
@@ -299,41 +325,27 @@ const ChartPreviewBoardForShare: FC<{
             );
             drillDownEventListener(drillOptionRef?.current, param, p => {
               drillOptionRef.current = p;
-              handleDrillOptionChange?.(p);
-            });
-            pivotTableDrillEventListener(param, p => {
               handleDrillOptionChange(p);
             });
+            pivotTableDrillEventListener(param, handleDrillOptionChange);
             chartSelectionEventListener(param, p => {
               dispatch(shareActions.changeSelectedItems(p));
             });
           },
         },
-      ]);
-    };
-
-    const handleFilterChange = (type, payload) => {
-      dispatch(
-        updateFilterAndFetchDatasetForShare({
-          backendChartId: chartPreview?.backendChart?.id!,
-          chartPreview,
-          payload,
-          drillOption: drillOptionRef?.current,
-        }),
-      );
-    };
-
-    const handleDrillOptionChange = (option: IChartDrillOption) => {
-      drillOptionRef.current = option;
-      dispatch(
-        updateFilterAndFetchDatasetForShare({
-          backendChartId: chartPreview?.backendChart?.id!,
-          chartPreview,
-          payload: null,
-          drillOption: drillOptionRef?.current,
-        }),
-      );
-    };
+      ],
+      [
+        buildDrillThroughEventParams,
+        buildViewDataEventParams,
+        chartPreview,
+        dispatch,
+        filterSearchParams,
+        handleDrillOptionChange,
+        handleDrillThroughEvent,
+        handleViewDataEvent,
+      ],
+    );
+    useChartMouseEvents(chart, chartMouseEvents);
 
     const handleDateLevelChange = (type, payload) => {
       dispatch(
