@@ -161,15 +161,15 @@ Run the hook test and any touched share-chart test. Commit as `fix: refresh shar
 - Create: `frontend/src/app/pages/ChartWorkbenchPage/slice/__tests__/thunks.test.ts`
 - Cherry-pick: `f90068338676e201939cc410dac817deff80dfa1`
 
-- [ ] **Step 1: Write thunk payload tests**
+- [x] **Step 1: Write thunk payload tests**
 
 Execute `fetchChartAction` with an embedded `backendChart` containing date metadata and a config. Assert its fulfilled payload regenerates date-level computed fields while retaining non-date computed fields and all other chart properties. Cover a backend chart without config. Mock the request path and assert a chart fetched by `chartId` still goes through the existing `convertToChartDto` path unchanged.
 
-- [ ] **Step 2: Run red, apply upstream, and run green**
+- [x] **Step 2: Run red, apply upstream, and run green**
 
 Expected baseline failure: embedded charts are returned without regenerated date-level computed fields. Preserve the test, cherry-pick the direct PR, restore the test, and rerun expecting PASS.
 
-- [ ] **Step 3: Commit the regression test**
+- [x] **Step 3: Commit the regression test**
 
 Commit as `test: cover embedded chart date fields`.
 
