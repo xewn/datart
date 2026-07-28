@@ -45,7 +45,7 @@
 - [x] Run Java 8/Node 16 `mvn test` and offline `mvn -DskipTests package`; restore only known lock drift and hash/inspect the install ZIP.
 - [x] Update all four ledger rows and this plan with exact commits and verification evidence; run provenance and worktree hygiene checks.
 - [x] Review the complete integration diff and resolve all Critical/Important findings with focused regression coverage.
-- [ ] Merge the integration branch into the fork's target branch without discarding user work, and push both the target and integration provenance branch.
+- [x] Merge the integration branch into the fork's target branch without discarding user work, and push both the target and integration provenance branch.
 
 ## Verification Evidence
 
