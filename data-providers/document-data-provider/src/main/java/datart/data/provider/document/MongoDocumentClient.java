@@ -43,9 +43,9 @@ class MongoDocumentClient implements DocumentClient {
     }
 
     @Override
-    public Dataframe execute(String command) {
+    public Dataframe execute(String command, int maxRows) {
         Document parsed = parseReadOnlyCommand(command);
-        return toDataframe(readAllBatches(database, parsed), command);
+        return toDataframe(readAllBatches(database, parsed, maxRows), command);
     }
 
     @Override
@@ -75,17 +75,20 @@ class MongoDocumentClient implements DocumentClient {
         return parsed;
     }
 
-    static List<Document> readAllBatches(MongoDatabase database, Document command) {
+    static List<Document> readAllBatches(MongoDatabase database, Document command, int maxRows) {
+        if (maxRows <= 0) {
+            throw new IllegalArgumentException("MongoDB result row limit must be positive");
+        }
         Document response = database.runCommand(command);
         Document cursor = response.get("cursor", Document.class);
         if (cursor == null) {
             return Collections.emptyList();
         }
         List<Document> documents = new ArrayList<>();
-        appendBatch(documents, cursor, "firstBatch");
         long cursorId = cursorId(cursor);
         String collection = String.valueOf(command.get(command.keySet().iterator().next()));
         try {
+            appendBatch(documents, cursor, "firstBatch", maxRows);
             while (cursorId != 0L) {
                 response = database.runCommand(new Document("getMore", cursorId)
                         .append("collection", collection));
@@ -93,8 +96,8 @@ class MongoDocumentClient implements DocumentClient {
                 if (cursor == null) {
                     throw new IllegalStateException("MongoDB getMore response is missing a cursor");
                 }
-                appendBatch(documents, cursor, "nextBatch");
                 cursorId = cursorId(cursor);
+                appendBatch(documents, cursor, "nextBatch", maxRows);
             }
         } catch (RuntimeException e) {
             if (cursorId != 0L) {
@@ -110,9 +113,12 @@ class MongoDocumentClient implements DocumentClient {
         return documents;
     }
 
-    private static void appendBatch(List<Document> documents, Document cursor, String key) {
+    private static void appendBatch(List<Document> documents, Document cursor, String key, int maxRows) {
         List<Document> batch = cursor.getList(key, Document.class);
         if (batch != null) {
+            if (batch.size() > maxRows - documents.size()) {
+                throw new IllegalStateException("MongoDB result exceeded " + maxRows + " rows");
+            }
             documents.addAll(batch);
         }
     }

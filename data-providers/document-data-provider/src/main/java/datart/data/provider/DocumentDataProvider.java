@@ -20,6 +20,7 @@ import java.util.Set;
 public class DocumentDataProvider extends DataProvider {
 
     private static final String I18N_PREFIX = "config.template.document.";
+    static final int MAX_RESULT_ROWS = 100_000;
     private final DocumentClientFactory clients = new DocumentClientFactory();
 
     @Override
@@ -65,7 +66,15 @@ public class DocumentDataProvider extends DataProvider {
         if (script == null || script.getScript() == null) {
             throw new IllegalArgumentException("MongoDB query command is required");
         }
-        return clients.getClient(source).execute(script.getScript());
+        return clients.getClient(source).execute(script.getScript(), resultLimit(executeParam));
+    }
+
+    static int resultLimit(ExecuteParam executeParam) {
+        if (executeParam == null || executeParam.getPageInfo() == null
+                || executeParam.getPageInfo().getPageSize() <= 0) {
+            return MAX_RESULT_ROWS;
+        }
+        return (int) Math.min(executeParam.getPageInfo().getPageSize(), MAX_RESULT_ROWS);
     }
 
     @Override

@@ -80,7 +80,7 @@ class DocumentClientFactoryTest {
         }
 
         @Override
-        public Dataframe execute(String command) {
+        public Dataframe execute(String command, int maxRows) {
             return new Dataframe();
         }
 

@@ -24,6 +24,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
@@ -84,7 +85,8 @@ class DateRatioCalculatorTest {
         assertEquals(0.5d, page.getRows().get(0).get(2));
         assertEquals(1, requests.size());
         assertEquals(1, requests.get(0).getPageInfo().getPageNo());
-        assertEquals(Integer.MAX_VALUE, requests.get(0).getPageInfo().getPageSize());
+        assertEquals(DateRatioCalculator.MAX_SUPPLEMENTARY_ROWS,
+                requests.get(0).getPageInfo().getPageSize());
         assertEquals(false, requests.get(0).getPageInfo().isCountTotal());
         assertEquals(2, param.getPageInfo().getPageNo());
         assertEquals(2, param.getPageInfo().getTotal());
@@ -133,7 +135,8 @@ class DateRatioCalculatorTest {
         assertEquals(2, requests.get(1).getFilters().size());
         assertNotSame(param.getPageInfo(), requests.get(0).getPageInfo());
         assertEquals(1, requests.get(0).getPageInfo().getPageNo());
-        assertEquals(Integer.MAX_VALUE, requests.get(0).getPageInfo().getPageSize());
+        assertEquals(DateRatioCalculator.MAX_SUPPLEMENTARY_ROWS,
+                requests.get(0).getPageInfo().getPageSize());
         assertEquals(false, requests.get(0).getPageInfo().isCountTotal());
         assertEquals(3, param.getPageInfo().getPageNo());
         assertEquals(77, param.getPageInfo().getTotal());
@@ -144,6 +147,22 @@ class DateRatioCalculatorTest {
         CalculatorFactory factory = new CalculatorFactory(Collections.singletonList(new DateRatioCalculator()));
 
         assertNotSame(factory.create("dateRatio"), factory.create("dateRatio"));
+    }
+
+    @Test
+    void rejectsOversizedSupplementaryResults() throws Exception {
+        AggregateOperator aggregate = aggregate("SUM(amount)-ratio", "last", "percent");
+        ExecuteParam param = executeParam(aggregate);
+        Dataframe page = dataframe(Collections.singletonList(row("east", "2024-02", 150)));
+        DataProvider provider = mock(DataProvider.class);
+        Dataframe oversized = dataframe("SUM(amount)-ratio", Collections.nCopies(
+                DateRatioCalculator.MAX_SUPPLEMENTARY_ROWS + 1,
+                row("east", "2024-01", 100)));
+        when(provider.execute(isNull(), isNull(), any(ExecuteParam.class))).thenReturn(oversized);
+
+        DateRatioCalculator calculator = new DateRatioCalculator();
+        assertThrows(IllegalStateException.class,
+                () -> calculator.calculate(page, aggregate, param, null, null, provider));
     }
 
     private AggregateOperator aggregate(String alias, String ratioType, String valueType) {

@@ -79,7 +79,25 @@ class MongoDocumentClientTest {
                 .append("nextBatch", Collections.singletonList(new Document("name", "Grace")))));
 
         assertEquals(Arrays.asList(new Document("name", "Ada"), new Document("name", "Grace")),
-                MongoDocumentClient.readAllBatches(database, command));
+                MongoDocumentClient.readAllBatches(database, command, 10));
         verify(database).runCommand(getMore);
+    }
+
+    @Test
+    void killsCursorWhenResultExceedsRowLimit() {
+        MongoDatabase database = mock(MongoDatabase.class);
+        Document command = new Document("find", "people");
+        Document getMore = new Document("getMore", 42L).append("collection", "people");
+        Document kill = new Document("killCursors", "people")
+                .append("cursors", Collections.singletonList(99L));
+        when(database.runCommand(command)).thenReturn(new Document("cursor", new Document("id", 42L)
+                .append("firstBatch", Collections.singletonList(new Document("name", "Ada")))));
+        when(database.runCommand(getMore)).thenReturn(new Document("cursor", new Document("id", 99L)
+                .append("nextBatch", Arrays.asList(
+                        new Document("name", "Grace"), new Document("name", "Linus")))));
+
+        assertThrows(IllegalStateException.class,
+                () -> MongoDocumentClient.readAllBatches(database, command, 2));
+        verify(database).runCommand(kill);
     }
 }

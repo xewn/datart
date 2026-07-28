@@ -26,6 +26,7 @@ import datart.core.data.provider.*;
 import datart.core.data.provider.processor.DataProviderPostProcessor;
 import datart.core.data.provider.processor.DataProviderPreProcessor;
 import datart.core.data.provider.sql.AggregateOperator;
+import datart.data.provider.calculator.AbstractCalculator;
 import datart.data.provider.calculator.CalculatorFactory;
 import datart.data.provider.optimize.DataProviderExecuteOptimizer;
 import lombok.extern.slf4j.Slf4j;
@@ -298,9 +299,10 @@ public class ProviderManager extends DataProviderExecuteOptimizer implements Dat
         if (param.getAggregators() == null) {
             return;
         }
+        Map<String, AbstractCalculator> calculators = new HashMap<>();
         for (AggregateOperator aggregate : param.getAggregators()) {
             if (aggregate != null && aggregate.getCalc() != null) {
-                CALCULATORS.create(aggregate.getCalc().getType())
+                calculators.computeIfAbsent(aggregate.getCalc().getType(), CALCULATORS::create)
                         .calculate(dataframe, aggregate, param, source, queryScript, dataProvider);
             }
         }

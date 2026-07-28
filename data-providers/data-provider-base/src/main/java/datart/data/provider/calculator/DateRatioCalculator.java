@@ -39,6 +39,10 @@ import java.util.Optional;
 public class DateRatioCalculator extends AbstractCalculator {
 
     private static final String TYPE = "dateRatio";
+    static final int MAX_SUPPLEMENTARY_ROWS = 100_000;
+
+    private Dataframe historyReference;
+    private final Map<String, Dataframe> periodReferences = new HashMap<>();
 
     @Override
     public String type() {
@@ -84,11 +88,11 @@ public class DateRatioCalculator extends AbstractCalculator {
         }
         Dataframe reference = dataframe;
         if (dataProvider != null) {
-            try {
-                reference = dataProvider.execute(source, queryScript, unpagedCopy(executeParam));
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to load period comparison history", e);
+            if (historyReference == null) {
+                historyReference = executeBounded(dataProvider, source, queryScript,
+                        unpagedCopy(executeParam), "period comparison history");
             }
+            reference = historyReference;
         }
         int referenceDataIndex = findColumnIndex(reference,
                 dataframe.getColumns().get(dataIndex).columnKey());
@@ -158,7 +162,33 @@ public class DateRatioCalculator extends AbstractCalculator {
         copy.getFilters().removeIf(filter -> dateColumnKey.equals(filter.getColumnKey()));
         copy.getFilters().add(boundFilter(dateColumn, FilterOperator.SqlOperator.GTE, period.start));
         copy.getFilters().add(boundFilter(dateColumn, FilterOperator.SqlOperator.LT, period.end()));
-        return dataProvider.execute(source, queryScript, copy);
+        String cacheKey = String.join(".", dateColumn) + ':' + period.label();
+        Dataframe cached = periodReferences.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+        Dataframe result = executeBounded(dataProvider, source, queryScript, copy,
+                "selected period " + period.label());
+        periodReferences.put(cacheKey, result);
+        return result;
+    }
+
+    private Dataframe executeBounded(DataProvider dataProvider,
+                                     DataProviderSource source,
+                                     QueryScript queryScript,
+                                     ExecuteParam param,
+                                     String description) {
+        try {
+            Dataframe result = dataProvider.execute(source, queryScript, param);
+            if (result != null && result.getRows() != null
+                    && result.getRows().size() > MAX_SUPPLEMENTARY_ROWS) {
+                throw new IllegalStateException("Period comparison " + description
+                        + " exceeded " + MAX_SUPPLEMENTARY_ROWS + " rows");
+            }
+            return result;
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load " + description, e);
+        }
     }
 
     private FilterOperator boundFilter(String[] column, FilterOperator.SqlOperator operator, LocalDate value) {
@@ -193,7 +223,7 @@ public class DateRatioCalculator extends AbstractCalculator {
         copy.setOrders(new ArrayList<>());
         copy.setPageInfo(PageInfo.builder()
                 .pageNo(1)
-                .pageSize(Integer.MAX_VALUE)
+                .pageSize(MAX_SUPPLEMENTARY_ROWS)
                 .countTotal(false)
                 .build());
         return copy;
