@@ -62,6 +62,24 @@ describe('ChartSelectionManager Test', () => {
     expect(mockWindow.removeEventListener.mock.calls[1][0]).toBe('keyup');
   });
 
+  test('should remove the same window listener references that were attached', () => {
+    const manager = new ChartSelectionManager([]);
+    const mockWindow = {
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    } as any;
+
+    manager.attachWindowListeners(mockWindow);
+    manager.removeWindowListeners(mockWindow);
+
+    expect(mockWindow.removeEventListener.mock.calls[0][1]).toBe(
+      mockWindow.addEventListener.mock.calls[0][1],
+    );
+    expect(mockWindow.removeEventListener.mock.calls[1][1]).toBe(
+      mockWindow.addEventListener.mock.calls[1][1],
+    );
+  });
+
   test('should attach ZRender listener', () => {
     const manager = new ChartSelectionManager([]);
     const mockOnFunction = jest.fn();
@@ -86,6 +104,22 @@ describe('ChartSelectionManager Test', () => {
     manager.removeZRenderListeners(mockChart);
     expect(mockChart.getZr().off.mock.calls.length).toBe(1);
     expect(mockChart.getZr().off.mock.calls[0][0]).toBe('click');
+  });
+
+  test('should remove the same ZRender listener reference that was attached', () => {
+    const manager = new ChartSelectionManager([]);
+    const zRender = {
+      on: jest.fn(),
+      off: jest.fn(),
+    };
+    const mockChart = {
+      getZr: () => zRender,
+    } as any;
+
+    manager.attachZRenderListeners(mockChart);
+    manager.removeZRenderListeners(mockChart);
+
+    expect(zRender.off.mock.calls[0][1]).toBe(zRender.on.mock.calls[0][1]);
   });
 
   test('should attach ECharts listener', () => {

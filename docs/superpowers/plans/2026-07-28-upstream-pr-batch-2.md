@@ -80,19 +80,19 @@ Rerun the focused test and commit as `fix: preserve dashboard URL date values` w
 - Modify: `frontend/src/app/models/__tests__/ChartSelectionManager.test.ts`
 - Modify: `frontend/src/app/models/ChartSelectionManager.ts`
 
-- [ ] **Step 1: Strengthen listener-identity tests**
+- [x] **Step 1: Strengthen listener-identity tests**
 
 Use one manager instance to attach and remove window listeners, then assert each `removeEventListener` callback is the same function object passed to the matching `addEventListener`. Do the same for ZRender `on`/`off`. Retain existing behavioral assertions for keyboard and click handlers.
 
-- [ ] **Step 2: Run the red tests**
+- [x] **Step 2: Run the red tests**
 
 Expected: FAIL because every `.bind(this)` call creates a new function, so removal cannot detach the registered handler.
 
-- [ ] **Step 3: Store stable bound handler references**
+- [x] **Step 3: Store stable bound handler references**
 
 Bind the window and ZRender handlers once per manager instance and reuse those references for attach/remove. Keep the handlers private and preserve existing selection semantics.
 
-- [ ] **Step 4: Verify and commit with provenance**
+- [x] **Step 4: Verify and commit with provenance**
 
 Run the focused manager tests and commit as `fix: retain chart listener identities` with PR #2350, source SHA `e910efdab3710a3946ed880c244d8b9ca0d4ffbf`, and `Co-authored-by: Candy <zyy9803@foxmail.com>`.
 
