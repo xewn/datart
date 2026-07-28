@@ -1,0 +1,4 @@
+MONGODB:
+  db-type: MONGODB
+  name: MongoDB
+  url-prefix: mongodb://

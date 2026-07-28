@@ -1,0 +1,19 @@
+{
+  "type": "DOCUMENT",
+  "name": "document-data-provider",
+  "attributes": [
+    {
+      "name": "dbType",
+      "type": "string",
+      "required": true,
+      "defaultValue": "MONGODB"
+    },
+    {
+      "name": "url",
+      "type": "password",
+      "required": true,
+      "encrypt": true,
+      "defaultValue": "mongodb://localhost:27017/database"
+    }
+  ]
+}
