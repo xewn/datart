@@ -529,6 +529,37 @@ export const getLinkedColumn = (
   );
 };
 
+export const applyControllerUrlValue = (
+  content: ControllerWidgetContent,
+  value: any[] | undefined,
+) => {
+  switch (content?.type) {
+    case ControllerFacadeTypes.RangeTime:
+      if (
+        content.config.controllerDate &&
+        content.config.controllerDate.startTime &&
+        content.config.controllerDate.endTime
+      ) {
+        content.config.controllerDate.startTime.exactValue = value?.[0];
+        content.config.controllerDate.endTime.exactValue =
+          value?.[1] ?? value?.[0];
+      }
+      break;
+    case ControllerFacadeTypes.Time:
+      content.config.controllerDate = {
+        ...(content.config.controllerDate as any),
+        startTime: {
+          relativeOrExact: TimeFilterValueCategory.Exact,
+          exactValue: formatTime(value?.[0] as any, TIME_FORMATTER),
+        },
+      };
+      break;
+    default:
+      content.config.controllerValues = value || [];
+      break;
+  }
+};
+
 // TODO chart widget
 export const getWidgetMap = (
   widgets: Widget[],
@@ -582,32 +613,7 @@ export const getWidgetMap = (
           const _value = isMatchByName
             ? filterSearchParams[widget.config.name]
             : filterSearchParams[widget.id];
-          switch (content?.type) {
-            case ControllerFacadeTypes.RangeTime:
-              if (
-                content.config.controllerDate &&
-                content.config.controllerDate?.startTime &&
-                content.config.controllerDate?.endTime
-              ) {
-                content.config.controllerDate.startTime.exactValue =
-                  _value?.[0];
-                content.config.controllerDate.endTime.exactValue = _value?.[0];
-              }
-              break;
-
-            case ControllerFacadeTypes.Time:
-              content.config.controllerDate = {
-                ...(content.config.controllerDate as any),
-                startTime: {
-                  relativeOrExact: TimeFilterValueCategory.Exact,
-                  exactValue: formatTime(_value as any, TIME_FORMATTER),
-                },
-              };
-              break;
-            default:
-              content.config.controllerValues = _value || [];
-              break;
-          }
+          applyControllerUrlValue(content, _value);
         }
       }
 

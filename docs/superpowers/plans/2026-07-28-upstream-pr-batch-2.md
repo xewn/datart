@@ -58,19 +58,19 @@ Commit as `test: cover removed join table state`.
 - Create: `frontend/src/app/pages/DashBoardPage/utils/__tests__/widget.test.ts`
 - Modify: `frontend/src/app/pages/DashBoardPage/utils/widget.ts`
 
-- [ ] **Step 1: Write date-controller tests**
+- [x] **Step 1: Write date-controller tests**
 
 Extract a small exported `applyControllerUrlValue(content, value)` seam and test the intended behavior through it: range time uses distinct start and end values, a one-value range uses the start as the end, and a single-time controller formats the first URL value rather than the array object. Also cover an absent optional second range value without throwing.
 
-- [ ] **Step 2: Run the red test**
+- [x] **Step 2: Run the red test**
 
 Run the focused Jest file. Expected: FAIL because range end currently always receives index 0 and the single-time path passes the full array to `formatTime`.
 
-- [ ] **Step 3: Implement the unified date behavior**
+- [x] **Step 3: Implement the unified date behavior**
 
 Move only the controller-date mutation from `getWidgetMap` into the tested seam. Use `_value?.[1] ?? _value?.[0]` for range end and `_value?.[0]` for single time. Keep non-date controller behavior unchanged. This implements #2350 and records #2366, #2330, and #2309 as absorbed rather than applying their stale branches.
 
-- [ ] **Step 4: Verify and commit with provenance**
+- [x] **Step 4: Verify and commit with provenance**
 
 Rerun the focused test and commit as `fix: preserve dashboard URL date values` with the source commit `9875ce2507b5ef6ee844f78040c7166239d7578a`, an `Upstream-PR: running-elephant/datart#2350` trailer, absorbed-PR trailers for #2366/#2330/#2309, and the relevant upstream co-authors.
 
