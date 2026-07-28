@@ -44,15 +44,17 @@
 - [x] Run all Batch 5 focused suites, `npm run checkTs`, full Jest, and `npm run build:all`.
 - [x] Run Java 8/Node 16 `mvn test` and offline `mvn -DskipTests package`; restore only known lock drift and hash/inspect the install ZIP.
 - [x] Update all four ledger rows and this plan with exact commits and verification evidence; run provenance and worktree hygiene checks.
-- [ ] Review the complete integration diff, merge the integration branch into the fork's target branch without discarding user work, and push both the target and integration provenance branch.
+- [x] Review the complete integration diff and resolve all Critical/Important findings with focused regression coverage.
+- [ ] Merge the integration branch into the fork's target branch without discarding user work, and push both the target and integration provenance branch.
 
 ## Verification Evidence
 
 - Integration commits: #2236 `eb2b7fd1`, #2165 `1e487014`, #2016 `fe1fc578`, and #1969 `1f6f37ee`.
+- Review hardening commits: `7f231e8e`, `4520c4d1`, and `849740d9`.
 - Docker/assembly gate: `docker compose config --quiet` exited 0; the install ZIP contains Docker/Compose files and `100755` launch scripts.
-- Focused backend gates: MongoDB provider 5/5, OAuth/security 11/11, and period comparison 4/4 passed.
-- Focused frontend gates: request builder 23/23, chart helper 117/117, and advanced-calculation availability 1/1 passed; `npm run checkTs` exited 0.
-- Full Jest: 92 suites passed; 683 tests passed, 5 skipped, 688 total; 5 snapshots passed.
-- Full repository test: Java 8 and Node 16 `mvn test` exited 0; 50 Surefire tests ran, with 49 passed, 1 existing skip, zero failures, and zero errors. The Maven-bound `npm run build:all` succeeded.
-- Offline package: `mvn -o -DskipTests package` exited 0 and produced a 185,354,215-byte install ZIP with SHA-256 `14CF06AEAD6638C8345E061990EF103BABD1224D43347AC7352F4215A157DD29`.
+- Focused backend gates: MongoDB provider 11/11, OAuth/security 14/14, and period comparison 7/7 passed; cache reuse and SQL Server ISO-week coverage passed.
+- Focused frontend gates: request builder, chart helper, and advanced-calculation suites passed; `npm run checkTs`, Prettier, and changed-file ESLint exited 0.
+- Full Jest: 92 suites passed; 685 tests passed, 5 skipped, 690 total; 5 snapshots passed.
+- Full repository test: Java 8 and Node 16 `mvn test` exited 0; 65 Surefire tests ran, with 64 passed, 1 existing skip, zero failures, and zero errors. The Maven-bound `npm run build:all` succeeded.
+- Offline package: `mvn -o -DskipTests package` exited 0 and produced a 193,594,397-byte install ZIP with SHA-256 `E70656485E5D8BA5BB5A9DEDA2AECD56B8B61266EE7DE43F64AC098CF9D03715`.
 - Package inspection: MongoDB and OAuth JARs and their ServiceLoader descriptors are present; tracked lockfile drift was restored and the product worktree was clean before evidence updates.

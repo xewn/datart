@@ -44,12 +44,12 @@ later `master` changes, including `SECURITY.md`, remain present after the merge.
 | #2189 | Batch query variables by view IDs | `bd94783c613c27ef6b3eb4a7ca2d04b6abcb71f0` | dev | adapted | `f045e093` | focused service tests; full test/package passed | Batch query needs an empty-set guard and deterministic coverage. |
 | #2172 | Empty merge PR | `f622bdb5794c6f2ba92386dfceaeaa469af4f2a2` | master | rejected | not applicable | source review | PR changes zero files and has no behavior to adopt. |
 | #2170 | Variables passed through SQL functions | `da5338edcc18bacb66a8a0daf88db7702650d439` | dev | adapted | `2ff47187` | focused resolver tests; full test/package passed | Upstream regex is over-broad and needs narrow parser tests. |
-| #2165 | MongoDB document data provider | `b0b01ac83cd47ccd710ed51e2eb7c90710812588` | master | adapted | `1e487014` | 5 focused tests, SPI/JAR inspection, and full gates passed | Added read-only command validation, deterministic BSON conversion, source-isolated clients, and explicit reset/close lifecycle. |
+| #2165 | MongoDB document data provider | `b0b01ac83cd47ccd710ed51e2eb7c90710812588` | master | adapted | `1e487014`, hardening `7f231e8e`, `4520c4d1`, `849740d9` | 11 focused tests, SPI/JAR inspection, and full gates passed | Added read-only command validation, bounded cursor pagination, deterministic BSON conversion, source-isolated clients, and explicit reset/close lifecycle. |
 | #2131 | Duplicate Excel sheet names | `dc26f7be11bc4b624195507596227c3006645d83` | dev | adapted | `f815b142` | focused workbook test; full test/package passed | Upstream suffix logic can create secondary collisions and invalid Excel names. |
 | #2089 | Previous month and year time ranges | `95023762062e02c4687bab9bdf8f446e1f15412d` | master | direct | `c792b230`, test `7e62eac1` | focused fixed-clock tests; full frontend/Maven gates passed | Behavior is focused but needs stale-conflict resolution and fixed-clock tests. |
 | #2033 | Pivot table diagonal header | `9a1a9f9f8876656af6be2c7c1b538262a4abe160` | dev | adapted | `5e26cb2c` | focused configuration/renderer tests and shape snapshot; full frontend/Maven gates passed | Uses the current S2 `addShape` surface and leaves the native corner renderer untouched when disabled. |
-| #2016 | OAuth2 client SPI | `a4776fc9c6226ad5e74af7606a076de355be0375` | dev | adapted | `fe1fc578` | 11 security tests, SPI/JAR inspection, and full gates passed | Rebuilt discovery as an immutable fail-closed registry, retained standard TLS verification, and added DingTalk/WeChat routing coverage. |
-| #1969 | Period-over-period calculation | `4a197070628b8e472e39c98ff5784f0a2468aaac` | dev | adapted | `1f6f37ee` | 4 backend and 141 focused frontend tests; full gates passed | Rebuilt the conflicted feature with stateless calculators, alias-based lookup, copied supplementary queries, and null-safe ratios. |
+| #2016 | OAuth2 client SPI | `a4776fc9c6226ad5e74af7606a076de355be0375` | dev | adapted | `fe1fc578`, hardening `7f231e8e` | 14 security tests, SPI/JAR inspection, and full gates passed | Rebuilt discovery as an immutable fail-closed registry, retained standard TLS verification, bound single-use state to sessions, and preserved WeChat/legacy WeChart routing. |
+| #1969 | Period-over-period calculation | `4a197070628b8e472e39c98ff5784f0a2468aaac` | dev | adapted | `1f6f37ee`, hardening `7f231e8e`, `4520c4d1`, `849740d9` | 7 calculator tests plus cache/dialect coverage and focused frontend tests; full gates passed | Rebuilt the conflicted feature with alias-based lookup, bounded/reused supplementary queries, stable cache keys, copied pagination, and null-safe ratios. |
 | #1816 | Disallow negative grid values | `901a8c42cfffb0f433217d4fdf8eb07a49d41c42` | dev | rejected | not applicable | source review | Negative grid values are valid existing behavior and no product rule justifies removal. |
 
 Disposition totals: 10 direct, 17 adapted, 3 absorbed, and 3 rejected.
@@ -57,13 +57,14 @@ Disposition totals: 10 direct, 17 adapted, 3 absorbed, and 3 rejected.
 ## Batch 5 Platform, Provider, Security, and Calculations
 
 - Integrated #2236, #2165, #2016, and #1969 as four provenance-preserving adapted commits.
-- Focused backend gates: MongoDB provider 5 tests, OAuth/security 11 tests, and period comparison 4 tests passed with zero failures, errors, or skips.
-- Focused frontend gates: request builder, chart helper, and advanced-calculation availability suites passed 141 tests; `npm run checkTs` exited 0.
-- Full Jest gate: 92 suites passed; 683 tests passed, 5 skipped, 688 total; 5 snapshots passed.
-- Frontend production gate: the Maven-bound `npm run build:all` exited 0 twice under Node 16.20.2 and npm 8.19.4.
-- Full repository test gate: `mvn test` exited 0 under Java 8 and Node 16. Surefire recorded 50 tests, with 49 passed, 1 existing skip, zero failures, and zero errors.
+- Review hardening commits: `7f231e8e`, `4520c4d1`, and `849740d9` close command-order, OAuth state, pagination, cache-key, cursor-lifecycle, result-bound, and date-period edge cases found during complete-diff review.
+- Focused backend gates: MongoDB provider 11 tests, OAuth/security 14 tests, and period comparison 7 tests passed with zero failures, errors, or skips; cache reuse and SQL Server ISO-week tests also passed.
+- Focused frontend gates: request builder, chart helper, and advanced-calculation suites passed; `npm run checkTs`, Prettier, and ESLint exited 0 for the changed files.
+- Full Jest gate: 92 suites passed; 685 tests passed, 5 skipped, 690 total; 5 snapshots passed.
+- Frontend production gate: the final Maven-bound `npm run build:all` exited 0 under Node 16.20.2 and npm 8.19.4.
+- Full repository test gate: `mvn test` exited 0 under Java 8 and Node 16. Surefire recorded 65 tests, with 64 passed, 1 existing skip, zero failures, and zero errors.
 - Package gate: offline `mvn -DskipTests package` exited 0; Compose syntax validation also exited 0.
-- Install artifact: `datart-server-1.0.0-rc.3-install.zip` is 185,354,215 bytes with SHA-256 `14CF06AEAD6638C8345E061990EF103BABD1224D43347AC7352F4215A157DD29`.
+- Install artifact: `datart-server-1.0.0-rc.3-install.zip` is 193,594,397 bytes with SHA-256 `E70656485E5D8BA5BB5A9DEDA2AECD56B8B61266EE7DE43F64AC098CF9D03715`.
 - Package inspection: launch scripts are `100755`; Docker/Compose files, MongoDB provider JAR, OAuth/security JAR, and both ServiceLoader descriptors are present.
 - Repository hygiene: generated `frontend/package-lock.json` drift was restored, build outputs remain ignored, and the tracked product worktree was clean before evidence updates.
 
