@@ -27,11 +27,11 @@ $mvn='F:\Users\ADMINI~1\Cache\Temp\codex-datart-maven-3.9.16\apache-maven-3.9.16
 - Create: `core/src/test/java/datart/core/common/CSVParseTest.java`
 - Cherry-pick: `35c5d727ce61aac050489bd58d7e59edebbc17e3`
 
-- [ ] **Step 1: Write the failing CSV test**
+- [x] **Step 1: Write the failing CSV test**
 
 Create a JUnit Jupiter test using `@TempDir`, write `name, amount\n Alice , 42 \n`, call `CSVParse.create(path).parse()`, and assert the second row equals `Arrays.asList("Alice", "42")` while an embedded value such as `"Alice Smith"` remains intact.
 
-- [ ] **Step 2: Run the red test**
+- [x] **Step 2: Run the red test**
 
 ```powershell
 & $mvn -pl core -Dtest=CSVParseTest test
@@ -39,11 +39,11 @@ Create a JUnit Jupiter test using `@TempDir`, write `name, amount\n Alice , 42 \
 
 Expected: FAIL because the parsed values retain surrounding spaces.
 
-- [ ] **Step 3: Apply the focused upstream commit**
+- [x] **Step 3: Apply the focused upstream commit**
 
 Temporarily preserve the uncommitted test, cherry-pick `refs/remotes/upstream/pr/2263`, then restore the test. The production change must be exactly `CSVFormat.DEFAULT.withTrim()`.
 
-- [ ] **Step 4: Run and commit the green test**
+- [x] **Step 4: Run and commit the green test**
 
 Run the command from Step 2; expect all `CSVParseTest` cases to pass. Commit the test as `test: cover trimmed CSV values`.
 
