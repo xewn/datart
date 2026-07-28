@@ -34,10 +34,16 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
 public class ProviderManager extends DataProviderExecuteOptimizer implements DataProviderManager {
+
+    private static final Pattern AGGREGATE_COLUMN_PATTERN = Pattern.compile(
+            "^\\s*[A-Za-z_][A-Za-z0-9_]*\\s*\\(\\s*(?:DISTINCT\\s+)?([^()]+?)\\s*\\)\\s*$",
+            Pattern.CASE_INSENSITIVE);
 
     @Autowired(required = false)
     private List<ExtendProcessor> extendProcessors = new ArrayList<ExtendProcessor>();
@@ -197,12 +203,12 @@ public class ProviderManager extends DataProviderExecuteOptimizer implements Dat
         providerService.resetSource(source);
     }
 
-    private void excludeColumns(Dataframe data, Set<SelectColumn> include) {
+    void excludeColumns(Dataframe data, Set<SelectColumn> include) {
         if (data == null
                 || CollectionUtils.isEmpty(data.getColumns())
                 || include == null
-                || include.size() == 0
-                || include.stream().anyMatch(selectColumn -> selectColumn.getColumnKey().contains("*"))) {
+                || include.stream().anyMatch(selectColumn ->
+                    selectColumn != null && "*".equals(selectColumn.getColumnKey()))) {
             return;
         }
 
@@ -211,20 +217,29 @@ public class ProviderManager extends DataProviderExecuteOptimizer implements Dat
             Column column = data.getColumns().get(i);
             if (include
                     .stream()
-                    .noneMatch(selectColumn ->
-                            column.columnKey().equals(selectColumn.getColumnKey())
-                                    || column.columnKey().equals(selectColumn.getAlias())
-                                    || column.columnKey().contains(selectColumn.getColumnKey()))) {
+                    .noneMatch(selectColumn -> includesColumn(column.columnKey(), selectColumn))) {
                 excludeIndex.add(i);
             }
         }
-        if (excludeIndex.size() > 0) {
+        if (excludeIndex.size() > 0 && !CollectionUtils.isEmpty(data.getRows())) {
             data.getRows().parallelStream().forEach(row -> {
                 for (Integer index : excludeIndex) {
                     row.set(index, null);
                 }
             });
         }
+    }
+
+    private boolean includesColumn(String columnKey, SelectColumn selectedColumn) {
+        if (selectedColumn == null) {
+            return false;
+        }
+        if (columnKey.equals(selectedColumn.getColumnKey())
+                || columnKey.equals(selectedColumn.getAlias())) {
+            return true;
+        }
+        Matcher matcher = AGGREGATE_COLUMN_PATTERN.matcher(columnKey);
+        return matcher.matches() && matcher.group(1).trim().equals(selectedColumn.getColumnKey());
     }
 
 

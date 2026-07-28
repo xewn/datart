@@ -404,23 +404,31 @@ public class DataProviderServiceImpl extends BaseService implements DataProvider
             return Collections.singleton(SelectColumn.of(null, "*"));
         }
         try {
-            Set<SelectColumn> columns = new HashSet<>();
             List<RelSubjectColumns> relSubjectColumns = rscMapper.listByUser(view.getId(), getCurrentUser().getId());
-            for (RelSubjectColumns relSubjectColumn : relSubjectColumns) {
-                List<String> cols = (List<String>) objectMapper.readValue(relSubjectColumn.getColumnPermission(), ArrayList.class);
-                if (!CollectionUtils.isEmpty(cols)) {
-                    for (String col : cols) {
-                        if (StringUtils.isNotBlank(col)) {
-                            columns.add(SelectColumn.of(null, col.split("\\.")));
-                        }
-                    }
-                }
-            }
-            return columns;
+            return convertColumnPermissions(relSubjectColumns);
         } catch (Exception e) {
             Exceptions.e(e);
         }
         return null;
+    }
+
+    Set<SelectColumn> convertColumnPermissions(List<RelSubjectColumns> relations) throws IOException {
+        if (CollectionUtils.isEmpty(relations)) {
+            return Collections.singleton(SelectColumn.of(null, "*"));
+        }
+        Set<SelectColumn> columns = new HashSet<>();
+        for (RelSubjectColumns relation : relations) {
+            List<String> permittedColumns = objectMapper.readValue(
+                    relation.getColumnPermission(), ArrayList.class);
+            if (!CollectionUtils.isEmpty(permittedColumns)) {
+                for (String column : permittedColumns) {
+                    if (StringUtils.isNotBlank(column)) {
+                        columns.add(SelectColumn.of(null, column.split("\\.")));
+                    }
+                }
+            }
+        }
+        return columns;
     }
 
     /**

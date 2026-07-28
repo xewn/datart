@@ -156,19 +156,19 @@ Run the focused tests and commit as `fix: replace variables nested in SQL functi
 - Modify: `data-providers/data-provider-base/src/main/java/datart/data/provider/ProviderManager.java`
 - Modify: `server/src/main/java/datart/server/service/impl/DataProviderServiceImpl.java`
 
-- [ ] **Step 1: Write permission tests**
+- [x] **Step 1: Write permission tests**
 
 Cover these cases: `null` and wildcard include sets leave rows unchanged; an empty include set nulls every cell; selecting `id` does not expose `order_id`; `SUM(id)` and `COUNT(DISTINCT id)` are permitted by `id`; a key containing regex metacharacters is compared literally. Separately verify no role-column rows produce wildcard access, while one or more rows whose JSON permissions are all `[]` produce an empty set.
 
-- [ ] **Step 2: Run the red tests**
+- [x] **Step 2: Run the red tests**
 
 Run both focused module tests. Expect empty permissions to remain unrestricted and substring keys to be exposed.
 
-- [ ] **Step 3: Implement explicit permission semantics**
+- [x] **Step 3: Implement explicit permission semantics**
 
 Change `excludeColumns` to package visibility. Treat `null` or wildcard as unrestricted, but treat an empty set as deny-all. Replace `contains`/dynamic regex with a literal aggregate parser that accepts only a simple function name and an exact argument, optionally prefixed by `DISTINCT`. Extract a package-visible permission conversion helper in `DataProviderServiceImpl`; no relation rows return wildcard, while present rows with no selected columns return an empty set.
 
-- [ ] **Step 4: Verify and commit with provenance**
+- [x] **Step 4: Verify and commit with provenance**
 
 Run both tests and commit as `fix: enforce exact column permissions` with PR `#2283`, source SHA `fe6bfbc51865fabd44e36f41525259b0bb35d21a`, and `Co-authored-by: licheng.w.exiao <631948983@qq.com>`.
 
