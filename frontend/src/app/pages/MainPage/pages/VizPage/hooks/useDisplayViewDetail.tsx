@@ -18,10 +18,11 @@
 
 import { Table, Tabs } from 'antd';
 import { InteractionFieldMapper } from 'app/components/FormGenerator/constants';
+import { normalizeInteractionDialogSize } from 'app/components/FormGenerator/Customize/Interaction/dialogSize';
 import { ViewDetailSetting } from 'app/components/FormGenerator/Customize/Interaction/types';
 import useI18NPrefix from 'app/hooks/useI18NPrefix';
 import useMount from 'app/hooks/useMount';
-import useStateModal, { StateModalSize } from 'app/hooks/useStateModal';
+import useStateModal from 'app/hooks/useStateModal';
 import { ChartDataRequestBuilder } from 'app/models/ChartDataRequestBuilder';
 import { ChartDrillOption } from 'app/models/ChartDrillOption';
 import { ChartConfig, ChartDataConfig } from 'app/types/ChartConfig';
@@ -155,17 +156,12 @@ const useDisplayViewDetail = () => {
       .buildDetails();
   };
 
-  const defaultDialogSize = {
-    weight: 80,
-    height: 600,
-    contentHeight: 600,
-  };
-
   const openModal = (props: DisplayViewDetailProps) => {
-    const dialogSize =
-      props?.viewDetailSetting?.dialogSize?.dialogSize || defaultDialogSize;
+    const dialogSize = normalizeInteractionDialogSize(
+      props?.viewDetailSetting?.dialogSize?.dialogSize,
+    );
     return (openStateModal as Function)({
-      modalSize: window.innerWidth * dialogSize.weight / 100,
+      modalSize: (window.innerWidth * dialogSize.weight) / 100,
       bodyStyle: {
         height: dialogSize.height,
       },
@@ -175,7 +171,7 @@ const useDisplayViewDetail = () => {
             defaultActiveKey="summary"
             style={{ height: dialogSize.contentHeight }}
           >
-          <TabPane tab={t('summary')} key="summary">
+            <TabPane tab={t('summary')} key="summary">
               <TemplateTable
                 chartConfig={props?.chartConfig}
                 token={props.authToken}

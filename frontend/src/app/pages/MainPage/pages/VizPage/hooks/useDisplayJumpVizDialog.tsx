@@ -16,20 +16,22 @@
  * limitations under the License.
  */
 
+import { normalizeInteractionDialogSize } from 'app/components/FormGenerator/Customize/Interaction/dialogSize';
 import useStateModal from 'app/hooks/useStateModal';
 import { VizContainer } from '../Main/VizContainer';
 
 const useDisplayJumpVizDialog = () => {
   const [openStateModal, contextHolder] = useStateModal({});
-  const defaultDialogSize = {
-    weight: 80,
-    height: 600,
-    contentHeight: 600,
-  };
-  const openJumpVizDialogModal = ({ orgId, vizId, vizType, params, dialogSize }) => {
-    const ds = dialogSize || defaultDialogSize;
+  const openJumpVizDialogModal = ({
+    orgId,
+    vizId,
+    vizType,
+    params,
+    dialogSize,
+  }) => {
+    const ds = normalizeInteractionDialogSize(dialogSize);
     return (openStateModal as Function)({
-      modalSize: window.innerWidth * dialogSize.weight / 100,
+      modalSize: (window.innerWidth * ds.weight) / 100,
       content: () => (
         <div style={{ height: ds.height }}>
           <VizContainer

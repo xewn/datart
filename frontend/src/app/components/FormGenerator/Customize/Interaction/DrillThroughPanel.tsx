@@ -22,11 +22,12 @@ import { updateBy } from 'app/utils/mutation';
 import { FC, memo, useState } from 'react';
 import styled from 'styled-components/macro';
 import { uuidv4 } from 'utils/utils';
+import { InteractionDialogType } from '../../constants';
 import { ItemLayoutProps } from '../../types';
 import { itemLayoutComparer } from '../../utils';
+import { DEFAULT_INTERACTION_DIALOG_SIZE } from './dialogSize';
 import RuleList from './RuleList';
 import { DrillThroughSetting, InteractionRule } from './types';
-import { InteractionDialogType } from '../../constants';
 
 const DrillThroughPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
   ({ ancestors, translate: t = title => title, data, onChange, context }) => {
@@ -40,11 +41,7 @@ const DrillThroughPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
           id: uuidv4(),
           dialogSize: {
             configType: InteractionDialogType.Ratio,
-            dialogSize: {
-              weight: 80,
-              height: 600,
-              contentHeight: 600,
-            },
+            dialogSize: DEFAULT_INTERACTION_DIALOG_SIZE,
           },
         },
       ]);

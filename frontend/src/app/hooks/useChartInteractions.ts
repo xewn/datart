@@ -20,6 +20,7 @@ import {
   InteractionAction,
   InteractionCategory,
 } from 'app/components/FormGenerator/constants';
+import { DEFAULT_INTERACTION_DIALOG_SIZE } from 'app/components/FormGenerator/Customize/Interaction/dialogSize';
 import {
   CrossFilteringSetting,
   DrillThroughSetting,
@@ -220,11 +221,9 @@ const useChartInteractions = (props: {
                 openBrowserTab(orgId, relId, urlFiltersStr);
               }
               if (rule?.action === InteractionAction.Dialog) {
-                const dialogSize = rule?.dialogSize?.dialogSize || {
-                  width: 80,
-                  height: 600,
-                  contentHeight: 600,
-                };
+                const dialogSize =
+                  rule?.dialogSize?.dialogSize ||
+                  DEFAULT_INTERACTION_DIALOG_SIZE;
                 const modalContent = getDialogContent(
                   orgId,
                   relId,
@@ -254,11 +253,9 @@ const useChartInteractions = (props: {
                 openBrowserTab(orgId, relId, urlFiltersStr);
               }
               if (rule?.action === InteractionAction.Dialog) {
-                const dialogSize = rule?.dialogSize?.dialogSize || {
-                  width: 80,
-                  height: 600,
-                  contentHeight: 600,
-                };
+                const dialogSize =
+                  rule?.dialogSize?.dialogSize ||
+                  DEFAULT_INTERACTION_DIALOG_SIZE;
                 const modalContent = getDialogContent(
                   orgId,
                   relId,
@@ -289,11 +286,9 @@ const useChartInteractions = (props: {
                 openNewByUrl(url, urlFiltersStr);
               }
               if (rule?.action === InteractionAction.Dialog) {
-                const dialogSize = rule?.dialogSize?.dialogSize || {
-                  width: 80,
-                  height: 600,
-                  contentHeight: 600,
-                };
+                const dialogSize =
+                  rule?.dialogSize?.dialogSize ||
+                  DEFAULT_INTERACTION_DIALOG_SIZE;
                 const modalContent = getDialogContentByUrl(
                   url,
                   dialogSize,

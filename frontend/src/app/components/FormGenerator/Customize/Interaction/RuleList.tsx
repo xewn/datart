@@ -20,13 +20,21 @@ import { Button, Dropdown, Form, Input, Select, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import ChartDataView from 'app/types/ChartDataView';
 import { FC, useState } from 'react';
-import { InteractionAction, InteractionCategory, InteractionDialogType, InteractionMouseEvent } from '../../constants';
+import styled from 'styled-components/macro';
+import {
+  InteractionAction,
+  InteractionCategory,
+  InteractionMouseEvent,
+} from '../../constants';
+import {
+  DEFAULT_INTERACTION_DIALOG_SIZE_CONFIG,
+  normalizeInteractionDialogSizeConfig,
+} from './dialogSize';
+import DialogSizeConfigDrillThrough from './DialogSizeConfigDrillThrough';
 import JumpToChart from './JumpToChart';
 import JumpToDashboard from './JumpToDashboard';
 import JumpToUrl from './JumpToUrl';
 import { I18nTranslator, InteractionRule, VizType } from './types';
-import DialogSizeConfigDrillThrough from './DialogSizeConfigDrillThrough';
-import styled from 'styled-components/macro';
 
 const RuleList: FC<
   {
@@ -174,17 +182,9 @@ const RuleList: FC<
                 <DialogSizeConfigDrillThrough
                   value={
                     value
-                      ? value
-                      : {
-                        configType: InteractionDialogType.Ratio,
-                        dialogSize: {
-                          weight: 80,
-                          height: 600,
-                          contentHeight: 600,
-                        },
-                      }
+                      ? normalizeInteractionDialogSizeConfig(value)
+                      : DEFAULT_INTERACTION_DIALOG_SIZE_CONFIG
                   }
-
                   recordId={record.id}
                   onRuleChange={onRuleChange}
                   translate={t}
@@ -192,14 +192,13 @@ const RuleList: FC<
               </Form>
             )}
             placement={'bottomLeft'}
-            arrow>
+            arrow
+          >
             <Button type={'link'}>
               {t('drillThrough.rule.operation.dialogSizeConfig')}
             </Button>
           </Dropdown>
-          <Button
-            type={'link'}
-            onClick={() => onDeleteRule(record.id)}>
+          <Button type={'link'} onClick={() => onDeleteRule(record.id)}>
             {t('drillThrough.rule.operation.delete')}
           </Button>
         </>

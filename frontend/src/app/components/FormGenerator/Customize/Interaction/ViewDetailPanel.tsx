@@ -16,14 +16,31 @@
  * limitations under the License.
  */
 
-import { Form, InputNumber, message, Radio, Select, Space, Tooltip } from 'antd';
+import {
+  Form,
+  InputNumber,
+  message,
+  Radio,
+  Select,
+  Space,
+  Tooltip,
+} from 'antd';
 import { ChartStyleConfig } from 'app/types/ChartConfig';
 import { FC, memo, useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
 import { isEmptyArray } from 'utils/object';
-import { InteractionDialogType, InteractionFieldMapper, InteractionMouseEvent } from '../../constants';
+import {
+  InteractionDialogType,
+  InteractionFieldMapper,
+  InteractionMouseEvent,
+} from '../../constants';
 import { ItemLayoutProps } from '../../types';
 import { itemLayoutComparer } from '../../utils';
+import {
+  DEFAULT_INTERACTION_DIALOG_SIZE_CONFIG,
+  INTERACTION_DIALOG_SIZE_PRESETS,
+  normalizeInteractionDialogSizeConfig,
+} from './dialogSize';
 import { DialogSizeConfig, ViewDetailSetting } from './types';
 
 const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
@@ -41,14 +58,9 @@ const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
     const [dialogSizeConfig, setDialogSizeConfig] = useState<
       ViewDetailSetting['dialogSize']
     >(
-      data.value?.dialogSize || {
-        configType: InteractionDialogType.Ratio,
-        dialogSize: {
-          weight: 1000,
-          height: 400,
-          contentHeight: 400,
-        },
-      },
+      data.value?.dialogSize
+        ? normalizeInteractionDialogSizeConfig(data.value.dialogSize)
+        : DEFAULT_INTERACTION_DIALOG_SIZE_CONFIG,
     );
     const ratioType = [
       {
@@ -65,34 +77,17 @@ const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
       },
     ];
 
-    const ratioSize = {
-      small: {
-        weight: 800,
-        height: 200,
-        contentHeight: 200,
-      },
-      middle: {
-        weight: 1000,
-        height: 400,
-        contentHeight: 400,
-      },
-      big: {
-        weight: 1400,
-        height: 600,
-        contentHeight: 600,
-      },
-    };
-
     useEffect(() => {
       // 根据传入的 value 来判断选择哪个大小
       if (dialogSizeConfig?.dialogSize) {
         const { weight, height, contentHeight } = dialogSizeConfig.dialogSize;
         // 根据 weight, height 和 contentHeight 来判断
-        for (const size in ratioSize) {
+        for (const size in INTERACTION_DIALOG_SIZE_PRESETS) {
           if (
-            ratioSize[size].weight === weight &&
-            ratioSize[size].height === height &&
-            ratioSize[size].contentHeight === contentHeight
+            INTERACTION_DIALOG_SIZE_PRESETS[size].weight === weight &&
+            INTERACTION_DIALOG_SIZE_PRESETS[size].height === height &&
+            INTERACTION_DIALOG_SIZE_PRESETS[size].contentHeight ===
+              contentHeight
           ) {
             setSelectedRatio(size); // 设置对应的 size
             break;
@@ -116,7 +111,12 @@ const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
     };
 
     const handleViewDetailDialogSizeChange = value => {
-      handleViewDetailSettingChange(undefined, undefined, undefined, value);
+      handleViewDetailSettingChange(
+        undefined,
+        undefined,
+        undefined,
+        normalizeInteractionDialogSizeConfig(value),
+      );
     };
 
     const handleViewDetailSettingChange = (
@@ -228,12 +228,13 @@ const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
                 onChange={e => {
                   if (e.target.value === InteractionDialogType.Ratio) {
                     handleViewDetailDialogSizeChange({
-                      dialogSize: ratioSize[selectedRatio],
+                      dialogSize:
+                        INTERACTION_DIALOG_SIZE_PRESETS[selectedRatio],
                       configType: e.target.value,
                     });
                   } else {
                     handleViewDetailDialogSizeChange({
-                      dialogSize: ratioSize['middle'],
+                      dialogSize: INTERACTION_DIALOG_SIZE_PRESETS.middle,
                       configType: e.target.value,
                     });
                   }
@@ -253,7 +254,7 @@ const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
                   value={selectedRatio} // 设置默认值
                   onChange={newValue =>
                     handleViewDetailDialogSizeChange({
-                      dialogSize: ratioSize[newValue],
+                      dialogSize: INTERACTION_DIALOG_SIZE_PRESETS[newValue],
                       configType: InteractionDialogType.Ratio,
                     })
                   }
@@ -261,140 +262,171 @@ const ViewDetailPanel: FC<ItemLayoutProps<ChartStyleConfig>> = memo(
               )}
               {dialogSizeConfig?.configType ===
                 InteractionDialogType.Customize && (
-                  <>
-                    <Tooltip placement="topLeft" title={t('drillThrough.rule.dialogSizeConfig.widthRatio')}>
-                      <div
-                        style={{ display: 'inline-flex', alignItems: 'center' }}
+                <>
+                  <Tooltip
+                    placement="topLeft"
+                    title={t('drillThrough.rule.dialogSizeConfig.widthRatio')}
+                  >
+                    <div
+                      style={{ display: 'inline-flex', alignItems: 'center' }}
+                    >
+                      <InputNumber
+                        style={{ width: 75 }}
+                        value={dialogSizeConfig?.dialogSize?.weight}
+                        placeholder={t(
+                          'drillThrough.rule.dialogSizeConfig.widthRatio',
+                        )}
+                        onBlur={e => {
+                          const v = e.target.value;
+                          const weight = Number(v);
+                          if (!isNaN(weight) && weight > 0) {
+                            handleViewDetailDialogSizeChange({
+                              dialogSize: {
+                                ...dialogSizeConfig.dialogSize,
+                                weight,
+                              },
+                              configType: InteractionDialogType.Customize,
+                            });
+                          } else {
+                            message.warn(
+                              t('drillThrough.rule.dialogSizeConfig.widthTips'),
+                            );
+                          }
+                        }}
+                      />
+                      <span
+                        style={{
+                          border: '1px solid #d9d9d9',
+                          backgroundColor: '#f0f0f0',
+                          padding: '0 8px',
+                          height: '32px',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          fontSize: '14px',
+                        }}
                       >
-                        <InputNumber
-                          style={{ width: 75 }}
-                          value={dialogSizeConfig?.dialogSize?.weight}
-                          placeholder={t('drillThrough.rule.dialogSizeConfig.widthRatio')}
-                          onBlur={e => {
-                            const v = e.target.value;
-                            const weight = Number(v);
-                            if (!isNaN(weight) && weight > 0) {
+                        PX
+                      </span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip
+                    placement="topLeft"
+                    title={t('drillThrough.rule.dialogSizeConfig.dialogHeight')}
+                  >
+                    <div
+                      style={{ display: 'inline-flex', alignItems: 'center' }}
+                    >
+                      <InputNumber
+                        style={{ width: 75 }}
+                        value={dialogSizeConfig.dialogSize?.height}
+                        placeholder={t(
+                          'drillThrough.rule.dialogSizeConfig.dialogHeight',
+                        )}
+                        onBlur={e => {
+                          const v = e.target.value;
+                          const height = Number(v);
+                          if (!isNaN(height) && height > 0) {
+                            const dialogSize = dialogSizeConfig?.dialogSize;
+                            handleViewDetailDialogSizeChange({
+                              dialogSize: {
+                                ...dialogSize,
+                                height,
+                                contentHeight: Math.min(
+                                  dialogSize.contentHeight,
+                                  height,
+                                ),
+                              },
+                              configType: InteractionDialogType.Customize,
+                            });
+                          } else {
+                            message.warn(
+                              t(
+                                'drillThrough.rule.dialogSizeConfig.heightTips',
+                              ),
+                            );
+                          }
+                        }}
+                      />
+                      <span
+                        style={{
+                          border: '1px solid #d9d9d9',
+                          backgroundColor: '#f0f0f0',
+                          padding: '0 8px',
+                          height: '32px',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          fontSize: '14px',
+                        }}
+                      >
+                        PX
+                      </span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip
+                    placement="topLeft"
+                    title={t(
+                      'drillThrough.rule.dialogSizeConfig.contentHeight',
+                    )}
+                  >
+                    <div
+                      style={{ display: 'inline-flex', alignItems: 'center' }}
+                    >
+                      <InputNumber
+                        style={{ width: 75 }}
+                        value={dialogSizeConfig.dialogSize?.contentHeight}
+                        placeholder={t(
+                          'drillThrough.rule.dialogSizeConfig.contentHeight',
+                        )}
+                        onBlur={e => {
+                          const value = e.target.value;
+                          const contentHeight = Number(value);
+                          const dialogHeight =
+                            dialogSizeConfig.dialogSize?.height || 0;
+                          if (!isNaN(contentHeight) && contentHeight > 0) {
+                            if (contentHeight > dialogHeight) {
+                              message.warn(
+                                t(
+                                  'drillThrough.rule.dialogSizeConfig.contentTips2',
+                                ),
+                              );
+                            } else {
                               handleViewDetailDialogSizeChange({
                                 dialogSize: {
                                   ...dialogSizeConfig.dialogSize,
-                                  weight,
+                                  contentHeight,
                                 },
                                 configType: InteractionDialogType.Customize,
                               });
-                            } else {
-                              message.warn(t('drillThrough.rule.dialogSizeConfig.widthTips'));
                             }
-                          }}
-                        />
-                        <span
-                          style={{
-                            border: '1px solid #d9d9d9',
-                            backgroundColor: '#f0f0f0',
-                            padding: '0 8px',
-                            height: '32px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            fontSize: '14px',
-                          }}
-                        >
-                        PX
-                      </span>
-                      </div>
-                    </Tooltip>
-                    <Tooltip placement="topLeft" title={t('drillThrough.rule.dialogSizeConfig.dialogHeight')}>
-                      <div
-                        style={{ display: 'inline-flex', alignItems: 'center' }}
+                          } else {
+                            message.warn(
+                              t(
+                                'drillThrough.rule.dialogSizeConfig.contentTips1',
+                              ),
+                            );
+                          }
+                        }}
+                      />
+                      <span
+                        style={{
+                          border: '1px solid #d9d9d9',
+                          backgroundColor: '#f0f0f0',
+                          padding: '0 8px',
+                          height: '32px',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          fontSize: '14px',
+                        }}
                       >
-                        <InputNumber
-                          style={{ width: 75 }}
-                          value={dialogSizeConfig.dialogSize?.height}
-                          placeholder={t('drillThrough.rule.dialogSizeConfig.dialogHeight')}
-                          onBlur={e => {
-                            const v = e.target.value;
-                            const height = Number(v);
-                            if (!isNaN(height) && height > 0) {
-                              const dialogSize = dialogSizeConfig?.dialogSize;
-                              handleViewDetailDialogSizeChange({
-                                dialogSize: {
-                                  ...dialogSize,
-                                  height,
-                                  contentHeight: Math.min(
-                                    dialogSize.contentHeight,
-                                    height,
-                                  ),
-                                },
-                                configType: InteractionDialogType.Customize,
-                              });
-                            } else {
-                              message.warn(t('drillThrough.rule.dialogSizeConfig.heightTips'));
-                            }
-                          }}
-                        />
-                        <span
-                          style={{
-                            border: '1px solid #d9d9d9',
-                            backgroundColor: '#f0f0f0',
-                            padding: '0 8px',
-                            height: '32px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            fontSize: '14px',
-                          }}
-                        >
                         PX
                       </span>
-                      </div>
-                    </Tooltip>
-                    <Tooltip placement="topLeft" title={t('drillThrough.rule.dialogSizeConfig.contentHeight')}>
-                      <div
-                        style={{ display: 'inline-flex', alignItems: 'center' }}
-                      >
-                        <InputNumber
-                          style={{ width: 75 }}
-                          value={dialogSizeConfig.dialogSize?.contentHeight}
-                          placeholder={t('drillThrough.rule.dialogSizeConfig.contentHeight')}
-                          onBlur={e => {
-                            const value = e.target.value;
-                            const contentHeight = Number(value);
-                            const dialogHeight =
-                              dialogSizeConfig.dialogSize?.height || 0;
-                            if (!isNaN(contentHeight) && contentHeight > 0) {
-                              if (contentHeight > dialogHeight) {
-                                message.warn(t('drillThrough.rule.dialogSizeConfig.contentTips2'));
-                              } else {
-                                handleViewDetailDialogSizeChange({
-                                  dialogSize: {
-                                    ...dialogSizeConfig.dialogSize,
-                                    contentHeight,
-                                  },
-                                  configType: InteractionDialogType.Customize,
-                                });
-                              }
-                            } else {
-                              message.warn(t('drillThrough.rule.dialogSizeConfig.contentTips1'));
-                            }
-                          }}
-                        />
-                        <span
-                          style={{
-                            border: '1px solid #d9d9d9',
-                            backgroundColor: '#f0f0f0',
-                            padding: '0 8px',
-                            height: '32px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            fontSize: '14px',
-                          }}
-                        >
-                        PX
-                      </span>
-                      </div>
-                    </Tooltip>
-                  </>
-                )}
+                    </div>
+                  </Tooltip>
+                </>
+              )}
             </div>
           </Form.Item>
         </Form>

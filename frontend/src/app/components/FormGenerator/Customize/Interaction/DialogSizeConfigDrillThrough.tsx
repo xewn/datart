@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from 'react';
 import { InputNumber, message, Radio, Select, Tooltip } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { InteractionDialogType } from '../../constants';
+import {
+  INTERACTION_DIALOG_SIZE_PRESETS,
+  normalizeInteractionDialogSizeConfig,
+} from './dialogSize';
 import { I18nTranslator } from './types';
 
 interface DialogSizeConfigProps {
@@ -16,17 +20,18 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
   onRuleChange,
   translate: t,
 }) => {
+  const normalizedValue = normalizeInteractionDialogSizeConfig(value);
   const [selectedRatio, setSelectedRatio] = useState<string>('middle');
   useEffect(() => {
     // 根据传入的 value 来判断选择哪个大小
     if (value.dialogSize) {
-      const { weight, height, contentHeight } = value.dialogSize;
+      const { weight, height, contentHeight } = normalizedValue.dialogSize;
       // 根据 weight, height 和 contentHeight 来判断
-      for (const size in ratioSize) {
+      for (const size in INTERACTION_DIALOG_SIZE_PRESETS) {
         if (
-          ratioSize[size].weight === weight &&
-          ratioSize[size].height === height &&
-          ratioSize[size].contentHeight === contentHeight
+          INTERACTION_DIALOG_SIZE_PRESETS[size].weight === weight &&
+          INTERACTION_DIALOG_SIZE_PRESETS[size].height === height &&
+          INTERACTION_DIALOG_SIZE_PRESETS[size].contentHeight === contentHeight
         ) {
           setSelectedRatio(size); // 设置对应的 size
           break;
@@ -50,23 +55,6 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
     },
   ];
 
-  const ratioSize = {
-    small: {
-      weight: 70,
-      height: 500,
-      contentHeight: 500,
-    },
-    middle: {
-      weight: 80,
-      height: 600,
-      contentHeight: 600,
-    },
-    big: {
-      weight: 90,
-      height: 800,
-      contentHeight: 770,
-    },
-  };
   return (
     <div
       style={{
@@ -85,16 +73,16 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
           flexShrink: 0, // 防止被挤压
           marginLeft: 5,
         }}
-        value={value.configType}
+        value={normalizedValue.configType}
         onChange={e => {
           if (e.target.value === InteractionDialogType.Ratio) {
             onRuleChange(recordId, 'dialogSize', {
-              dialogSize: ratioSize[selectedRatio],
+              dialogSize: INTERACTION_DIALOG_SIZE_PRESETS[selectedRatio],
               configType: e.target.value,
             });
           } else {
             onRuleChange(recordId, 'dialogSize', {
-              dialogSize: ratioSize['middle'],
+              dialogSize: INTERACTION_DIALOG_SIZE_PRESETS.middle,
               configType: e.target.value,
             });
           }
@@ -107,26 +95,29 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
           {t('drillThrough.rule.dialogSizeConfig.customize')}
         </Radio>
       </Radio.Group>
-      {value.configType === InteractionDialogType.Ratio && (
+      {normalizedValue.configType === InteractionDialogType.Ratio && (
         <Select
           style={{ width: 150 }}
           options={ratioType}
           value={selectedRatio} // 设置默认值
           onChange={newValue =>
             onRuleChange(recordId, 'dialogSize', {
-              dialogSize: ratioSize[newValue],
+              dialogSize: INTERACTION_DIALOG_SIZE_PRESETS[newValue],
               configType: InteractionDialogType.Ratio,
             })
           }
         />
       )}
-      {value.configType === InteractionDialogType.Customize && (
+      {normalizedValue.configType === InteractionDialogType.Customize && (
         <>
-          <Tooltip placement="topLeft" title={t('drillThrough.rule.dialogSizeConfig.widthRatio')}>
+          <Tooltip
+            placement="topLeft"
+            title={t('drillThrough.rule.dialogSizeConfig.widthRatio')}
+          >
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
               <InputNumber
                 style={{ width: 65 }}
-                value={value.dialogSize?.weight}
+                value={normalizedValue.dialogSize.weight}
                 placeholder={t('drillThrough.rule.dialogSizeConfig.widthRatio')}
                 onBlur={e => {
                   const v = e.target.value;
@@ -138,13 +129,15 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
                   ) {
                     onRuleChange(recordId, 'dialogSize', {
                       dialogSize: {
-                        ...value.dialogSize,
+                        ...normalizedValue.dialogSize,
                         weight,
                       },
                       configType: InteractionDialogType.Customize,
                     });
                   } else {
-                    message.warn(t('drillThrough.rule.dialogSizeConfig.widthTips'));
+                    message.warn(
+                      t('drillThrough.rule.dialogSizeConfig.widthTips'),
+                    );
                   }
                 }}
               />
@@ -164,16 +157,21 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
               </span>
             </div>
           </Tooltip>
-          <Tooltip placement="topLeft" title={t('drillThrough.rule.dialogSizeConfig.dialogHeight')}>
+          <Tooltip
+            placement="topLeft"
+            title={t('drillThrough.rule.dialogSizeConfig.dialogHeight')}
+          >
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
               <InputNumber
                 style={{ width: 75 }}
-                value={value.dialogSize?.height}
-                placeholder={t('drillThrough.rule.dialogSizeConfig.dialogHeight')}
+                value={normalizedValue.dialogSize.height}
+                placeholder={t(
+                  'drillThrough.rule.dialogSizeConfig.dialogHeight',
+                )}
                 onBlur={e => {
                   const v = e.target.value;
                   const height = Number(v);
-                  const { dialogSize } = value;
+                  const dialogSize = normalizedValue.dialogSize;
                   if (!isNaN(height) && height > 0) {
                     onRuleChange(recordId, 'dialogSize', {
                       dialogSize: {
@@ -187,7 +185,9 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
                       configType: InteractionDialogType.Customize,
                     });
                   } else {
-                    message.warn(t('drillThrough.rule.dialogSizeConfig.heightTips'));
+                    message.warn(
+                      t('drillThrough.rule.dialogSizeConfig.heightTips'),
+                    );
                   }
                 }}
               />
@@ -207,30 +207,39 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
               </span>
             </div>
           </Tooltip>
-          <Tooltip placement="topLeft" title={t('drillThrough.rule.dialogSizeConfig.contentHeight')}>
+          <Tooltip
+            placement="topLeft"
+            title={t('drillThrough.rule.dialogSizeConfig.contentHeight')}
+          >
             <div style={{ display: 'inline-flex', alignItems: 'center' }}>
               <InputNumber
                 style={{ width: 75 }}
-                value={value.dialogSize?.contentHeight}
-                placeholder={t('drillThrough.rule.dialogSizeConfig.contentHeight')}
+                value={normalizedValue.dialogSize.contentHeight}
+                placeholder={t(
+                  'drillThrough.rule.dialogSizeConfig.contentHeight',
+                )}
                 onBlur={e => {
                   const v = e.target.value;
                   const contentHeight = Number(v);
-                  const dialogHeight = value.dialogSize?.height || 0;
+                  const dialogHeight = normalizedValue.dialogSize.height;
                   if (!isNaN(contentHeight) && contentHeight > 0) {
                     if (contentHeight > dialogHeight) {
-                      message.warn(t('drillThrough.rule.dialogSizeConfig.contentTips2'));
+                      message.warn(
+                        t('drillThrough.rule.dialogSizeConfig.contentTips2'),
+                      );
                     } else {
                       onRuleChange(recordId, 'dialogSize', {
                         dialogSize: {
-                          ...value.dialogSize,
+                          ...normalizedValue.dialogSize,
                           contentHeight,
                         },
                         configType: InteractionDialogType.Customize,
                       });
                     }
                   } else {
-                    message.warn(t('drillThrough.rule.dialogSizeConfig.contentTips1'));
+                    message.warn(
+                      t('drillThrough.rule.dialogSizeConfig.contentTips1'),
+                    );
                   }
                 }}
               />
