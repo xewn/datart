@@ -200,15 +200,15 @@ Run focused tests and commit as `fix: refresh cached JDBC providers atomically` 
 - Create: `server/src/test/java/datart/server/job/SchemaSyncJobTest.java`
 - Cherry-pick: `ce8fb90c7825b0dfcf278d412d01e114ca833648`
 
-- [ ] **Step 1: Write job lifecycle tests**
+- [x] **Step 1: Write job lifecycle tests**
 
 Install a mocked `ApplicationContext` through `new Application().setApplicationContext(context)`. Mock `SourceService`, `Scheduler`, `JobExecutionContext`, and `JobDetail`. Assert missing and archived sources delete the Quartz job and do not execute schema reads; an active source keeps the job and reaches the sync path.
 
-- [ ] **Step 2: Verify red, apply upstream, verify green**
+- [x] **Step 2: Verify red, apply upstream, verify green**
 
 Run the server focused test; expect archived sources not to delete the job. Preserve the test, cherry-pick `refs/remotes/upstream/pr/2359`, restore it, and rerun expecting PASS.
 
-- [ ] **Step 3: Commit the regression test**
+- [x] **Step 3: Commit the regression test**
 
 Commit as `test: cover archived schema jobs`.
 
