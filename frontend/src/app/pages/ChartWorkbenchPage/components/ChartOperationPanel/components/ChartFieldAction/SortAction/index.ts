@@ -16,6 +16,5 @@
  * limitations under the License.
  */
 
-export { default as SortAction } from './SortAction';
 export { default as CustomizeSortAction } from './CustomizeSortAction';
-
+export { default as SortAction } from './SortAction';

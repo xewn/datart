@@ -17,6 +17,7 @@
  */
 
 export { default as Background } from './Background';
+export { default as BtnFormat } from './BtnFormat';
 export { default as CheckboxModal } from './CheckboxModal';
 export { default as ConditionalStylePanel } from './ConditionalStyle';
 export { default as DataReferencePanel } from './DataReferencePanel';
@@ -36,4 +37,3 @@ export { default as TimerFormat } from './TimerFormat';
 export { default as UnControlledTableHeaderPanel } from './UnControlledTableHeaderPanel';
 export { default as WidgetBorder } from './WidgetBorder';
 export { default as YAxisNumberFormatPanel } from './YAxisNumberFormatPanel';
-export { default as BtnFormat } from './BtnFormat';

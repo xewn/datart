@@ -27,6 +27,7 @@ import sliderProto from '../Widgets/ControllerWidget/config/sliderProto';
 import textProto from '../Widgets/ControllerWidget/config/textProto';
 import timeProto from '../Widgets/ControllerWidget/config/timeProto';
 import valueProto from '../Widgets/ControllerWidget/config/valueProto';
+import customBtnProto from '../Widgets/CustomBtnWidget/customBtnConfig';
 import linkedChartProto from '../Widgets/DataChartWidget/linkedChartConfig';
 import ownedChartProto from '../Widgets/DataChartWidget/ownedChartConfig';
 import groupProto from '../Widgets/GroupWidget/config';
@@ -39,7 +40,6 @@ import tabProto from '../Widgets/TabWidget/tabConfig';
 import timerProto from '../Widgets/TimerWidget/timerConfig';
 import videoProto from '../Widgets/VideoWidget/videoConfig';
 import { widgetManagerInstance as widgetManager } from './WidgetManager';
-import customBtnProto from '../Widgets/CustomBtnWidget/customBtnConfig';
 
 const protoList: WidgetProto[] = [
   linkedChartProto, // chart

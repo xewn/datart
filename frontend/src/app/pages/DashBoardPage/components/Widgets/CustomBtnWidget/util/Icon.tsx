@@ -1,5 +1,5 @@
-import React from 'react';
 import * as icons from '@ant-design/icons';
+import React from 'react';
 
 export const Icon = (props: { icon: string }) => {
   const { icon } = props;

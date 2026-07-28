@@ -50,6 +50,7 @@ import {
 } from '../Basic';
 import {
   Background,
+  BtnFormat,
   CheckboxModal,
   ConditionalStylePanel,
   CrossFilteringPanel,
@@ -69,7 +70,6 @@ import {
   ViewDetailPanel,
   WidgetBorder,
   YAxisNumberFormatPanel,
-  BtnFormat,
 } from '../Customize';
 import { FormGeneratorLayoutProps } from '../types';
 import { groupLayoutComparer, invokeDependencyWatcher } from '../utils';

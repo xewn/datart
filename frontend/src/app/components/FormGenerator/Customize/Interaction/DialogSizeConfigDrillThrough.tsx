@@ -25,7 +25,8 @@ const DialogSizeConfigDrillThrough: React.FC<DialogSizeConfigProps> = ({
   useEffect(() => {
     // 根据传入的 value 来判断选择哪个大小
     if (value.dialogSize) {
-      const { weight, height, contentHeight } = normalizedValue.dialogSize;
+      const { weight, height, contentHeight } =
+        normalizeInteractionDialogSizeConfig(value).dialogSize;
       // 根据 weight, height 和 contentHeight 来判断
       for (const size in INTERACTION_DIALOG_SIZE_PRESETS) {
         if (

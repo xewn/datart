@@ -20,13 +20,13 @@ import {
   BgColorsOutlined,
   DiffOutlined,
   DownOutlined,
+  DragOutlined,
   FilterOutlined,
   FontSizeOutlined,
   FormatPainterOutlined,
   GroupOutlined,
   SortAscendingOutlined,
   SortDescendingOutlined,
-  DragOutlined,
 } from '@ant-design/icons';
 import Dropdown from 'antd/lib/dropdown';
 import { SortActionType } from 'app/constants';

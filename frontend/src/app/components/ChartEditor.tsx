@@ -318,8 +318,11 @@ export const ChartEditor: FC<ChartEditorProps> = ({
     const targetChartConfig = CloneValueDeep(c.config);
     const finalChartConfig = clearUnsupportedChartConfig(
       clearRuntimeDateLevelFieldsInChartConfig(
-        transferChartConfigs(targetChartConfig, shadowChartConfig || chartConfig)
-      )
+        transferChartConfigs(
+          targetChartConfig,
+          shadowChartConfig || chartConfig,
+        ),
+      ),
     );
 
     const computedFields = updateBy(dataview?.computedFields || [], draft => {

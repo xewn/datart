@@ -56,7 +56,6 @@ const ChartDataConfigSectionActionMenu: FC<
 }) => {
   const t = useI18NPrefix(`viz.palette.data.enum.actionType`);
 
-
   const handleFieldConfigChanged = (
     columnUid: string,
     fieldConfig: ChartDataSectionField,
@@ -128,7 +127,8 @@ const ChartDataConfigSectionActionMenu: FC<
     }
     const options = config?.options?.[actionName];
     if (actionName === ChartDataSectionFieldActionType.Sortable) {
-      const allowCustomSort = config?.allowFieldCustomizeSort && type !== DataViewFieldType.NUMERIC;
+      const allowCustomSort =
+        config?.allowFieldCustomizeSort && type !== DataViewFieldType.NUMERIC;
       return (
         <SortAction
           config={fieldConfig}

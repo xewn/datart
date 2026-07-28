@@ -25,7 +25,7 @@ import ColorizeSingleAction from './ColorizeSingleAction';
 import FilterActions from './FilterAction';
 import NumberFormatAction from './NumberFormatAction';
 import SizeOptionsAction from './SizeAction';
-import { SortAction, CustomizeSortAction }  from './SortAction';
+import { CustomizeSortAction, SortAction } from './SortAction';
 
 const { FilterAction } = FilterActions;
 

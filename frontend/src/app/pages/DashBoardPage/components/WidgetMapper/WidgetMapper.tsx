@@ -20,6 +20,7 @@ import { ORIGINAL_TYPE_MAP } from '../../constants';
 import { WidgetDataProvider } from '../WidgetProvider/WidgetDataProvider';
 import { WidgetContext } from '../WidgetProvider/WidgetProvider';
 import { ControllerWidget } from '../Widgets/ControllerWidget/ControllerWidget';
+import { CustomBtnWidget } from '../Widgets/CustomBtnWidget/CustomBtnWidget';
 import { DataChartWidget } from '../Widgets/DataChartWidget/DataChartWidget';
 import { GroupWidget } from '../Widgets/GroupWidget';
 import { IframeWidget } from '../Widgets/IframeWidget/IframeWidget';
@@ -30,7 +31,6 @@ import { RichTextWidget } from '../Widgets/RichTextWidget/RichTextWidget';
 import { TabWidget } from '../Widgets/TabWidget/TabWidget';
 import { TimerWidget } from '../Widgets/TimerWidget/TimerWidget';
 import { VideoWidget } from '../Widgets/VideoWidget/VideoWidget';
-import { CustomBtnWidget } from '../Widgets/CustomBtnWidget/CustomBtnWidget';
 
 export const WidgetMapper: React.FC<{
   boardEditing: boolean;

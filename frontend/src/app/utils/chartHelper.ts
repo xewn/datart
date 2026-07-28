@@ -1884,7 +1884,9 @@ export function hasAggregationFunction(exp?: string) {
   ].some(agg => new RegExp(`${agg}\\(`, 'i').test(exp || ''));
 }
 
-export function removeCustomizeSortConfig(config: ChartDataConfig): ChartDataConfig {
+export function removeCustomizeSortConfig(
+  config: ChartDataConfig,
+): ChartDataConfig {
   return updateBy(config, draft => {
     draft.rows?.forEach(r => {
       if (r?.sort?.type === SortActionType.Customize) {
@@ -1894,7 +1896,9 @@ export function removeCustomizeSortConfig(config: ChartDataConfig): ChartDataCon
   });
 }
 
-export function clearUnsupportedChartConfig(chartConfig: ChartConfig): ChartConfig {
+export function clearUnsupportedChartConfig(
+  chartConfig: ChartConfig,
+): ChartConfig {
   return updateBy(chartConfig, draft => {
     draft.datas = (draft?.datas || []).map(item => {
       if (!item.allowFieldCustomizeSort) {
@@ -1903,5 +1907,4 @@ export function clearUnsupportedChartConfig(chartConfig: ChartConfig): ChartConf
       return item;
     });
   });
-};
-
+}

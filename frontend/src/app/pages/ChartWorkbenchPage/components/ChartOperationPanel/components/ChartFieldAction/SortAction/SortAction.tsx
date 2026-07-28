@@ -60,36 +60,28 @@ const SortAction: FC<{
     if (mode === 'menu') {
       let sortTypeOptions = BASE_SORT_OPTIONS;
       if (allowCustomSort) {
-        sortTypeOptions = [
-          ...sortTypeOptions,
-          SortActionType.Customize
-        ];
+        sortTypeOptions = [...sortTypeOptions, SortActionType.Customize];
       }
       return (
         <>
-          {sortTypeOptions.map(
-            sort => {
-              return (
-                <Menu.Item
-                  key={sort}
-                  eventKey={sort}
-                  icon={direction === sort ? <CheckOutlined /> : ''}
-                  onClick={() => handleSortTypeChange(sort)}
-                >
-                  {
-                    sort === SortActionType.Customize ?
-                      (
-                        <Tooltip title={t(`sort.customizeTip`)} placement='bottom'>
-                          {t(`sort.${sort?.toLowerCase()}`)} <InfoCircleOutlined />
-                        </Tooltip>
-                      )
-                      :
-                      t(`sort.${sort?.toLowerCase()}`)
-                  }
-                </Menu.Item>
-              );
-            },
-          )}
+          {sortTypeOptions.map(sort => {
+            return (
+              <Menu.Item
+                key={sort}
+                eventKey={sort}
+                icon={direction === sort ? <CheckOutlined /> : ''}
+                onClick={() => handleSortTypeChange(sort)}
+              >
+                {sort === SortActionType.Customize ? (
+                  <Tooltip title={t(`sort.customizeTip`)} placement="bottom">
+                    {t(`sort.${sort?.toLowerCase()}`)} <InfoCircleOutlined />
+                  </Tooltip>
+                ) : (
+                  t(`sort.${sort?.toLowerCase()}`)
+                )}
+              </Menu.Item>
+            );
+          })}
         </>
       );
     }
@@ -124,7 +116,11 @@ const SortAction: FC<{
   return renderOptions(mode);
 };
 
-const BASE_SORT_OPTIONS = [SortActionType.None, SortActionType.ASC, SortActionType.DESC];
+const BASE_SORT_OPTIONS = [
+  SortActionType.None,
+  SortActionType.ASC,
+  SortActionType.DESC,
+];
 export default SortAction;
 
 const StyledRow = styled(Row)`

@@ -719,7 +719,11 @@ class PivotSheetChart extends ReactChart {
     return sectionConfigRows
       .map(config => {
         const type = config?.sort?.type;
-        if (!type || type === SortActionType.None || type === SortActionType.Customize) {
+        if (
+          !type ||
+          type === SortActionType.None ||
+          type === SortActionType.Customize
+        ) {
           return null;
         }
         return {
@@ -727,7 +731,9 @@ class PivotSheetChart extends ReactChart {
           sortFunc: params => {
             const { data } = params;
             return data?.sort((a, b) =>
-              type === SortActionType.ASC ? a?.localeCompare(b) : b?.localeCompare(a),
+              type === SortActionType.ASC
+                ? a?.localeCompare(b)
+                : b?.localeCompare(a),
             );
           },
         };

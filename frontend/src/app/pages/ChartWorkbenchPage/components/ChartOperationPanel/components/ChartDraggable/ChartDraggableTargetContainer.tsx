@@ -28,15 +28,20 @@ import useFieldActionModal from 'app/hooks/useFieldActionModal';
 import ChartAggregationContext from 'app/pages/ChartWorkbenchPage/contexts/ChartAggregationContext';
 import ChartDatasetContext from 'app/pages/ChartWorkbenchPage/contexts/ChartDatasetContext';
 import VizDataViewContext from 'app/pages/ChartWorkbenchPage/contexts/ChartDataViewContext';
+import { chartConfigSelector } from 'app/pages/ChartWorkbenchPage/slice/selectors';
 import { ChartDataSectionField } from 'app/types/ChartConfig';
 import { ChartDataConfigSectionProps } from 'app/types/ChartDataConfigSection';
-import { getColumnRenderName, removeCustomizeSortConfig } from 'app/utils/chartHelper';
+import {
+  getColumnRenderName,
+  removeCustomizeSortConfig,
+} from 'app/utils/chartHelper';
 import { reachLowerBoundCount } from 'app/utils/internalChartHelper';
 import { updateBy, updateByKey } from 'app/utils/mutation';
 import { CHART_DRAG_ELEMENT_TYPE } from 'globalConstants';
 import { rgba } from 'polished';
 import { FC, memo, useContext, useEffect, useState } from 'react';
 import { DropTargetMonitor, useDrop } from 'react-dnd';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components/macro';
 import {
   BORDER_RADIUS,
@@ -52,9 +57,11 @@ import { uuidv4 } from 'utils/utils';
 import ChartDraggableElement from './ChartDraggableElement';
 import ChartDraggableElementField from './ChartDraggableElementField';
 import ChartDraggableElementHierarchy from './ChartDraggableElementHierarchy';
-import {getDefaultAggregate, isUpdate2CustomizeSort, updateDataConfigByField} from './utils';
-import { useSelector } from 'react-redux';
-import { chartConfigSelector } from 'app/pages/ChartWorkbenchPage/slice/selectors';
+import {
+  getDefaultAggregate,
+  isUpdate2CustomizeSort,
+  updateDataConfigByField,
+} from './utils';
 
 type DragItem = {
   index?: number;
@@ -363,21 +370,30 @@ export const ChartDraggableTargetContainer: FC<ChartDataConfigSectionProps> =
       }
       let _currentConfig = currentConfig;
       // Check whether the sort configuration of field has been changed to custom sort
-      const _isUpdate2CustomizeSort = isUpdate2CustomizeSort(columnUid, _currentConfig, fieldConfig);
+      const _isUpdate2CustomizeSort = isUpdate2CustomizeSort(
+        columnUid,
+        _currentConfig,
+        fieldConfig,
+      );
       if (_isUpdate2CustomizeSort) {
         // Only allows custom sorting on a single field
         // case 1: Custom sort field already exists in the different config section
         chartConfig?.datas?.forEach((item, index) => {
-          if (item.key !== _currentConfig.key
-            && item.allowFieldCustomizeSort
-            && item.rows?.some(r => r?.sort?.type === SortActionType.Customize)
+          if (
+            item.key !== _currentConfig.key &&
+            item.allowFieldCustomizeSort &&
+            item.rows?.some(r => r?.sort?.type === SortActionType.Customize)
           ) {
             // remove the custom sort configuration of field
             onConfigChanged?.([index], removeCustomizeSortConfig(item), false);
           }
         });
         // case 2: Custom sort field already exists in the same config section
-        if (_currentConfig.rows?.some(r => r?.sort?.type === SortActionType.Customize)) {
+        if (
+          _currentConfig.rows?.some(
+            r => r?.sort?.type === SortActionType.Customize,
+          )
+        ) {
           _currentConfig = removeCustomizeSortConfig(_currentConfig);
         }
       }
@@ -386,7 +402,11 @@ export const ChartDraggableTargetContainer: FC<ChartDataConfigSectionProps> =
         currentConfig,
         fieldConfig,
       );
-      onConfigChanged?.(ancestors, _currentConfig, _isUpdate2CustomizeSort || needRefresh);
+      onConfigChanged?.(
+        ancestors,
+        _currentConfig,
+        _isUpdate2CustomizeSort || needRefresh,
+      );
     };
 
     const handleOpenActionModal =
