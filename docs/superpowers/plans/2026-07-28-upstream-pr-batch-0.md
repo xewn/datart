@@ -6,7 +6,7 @@
 
 **Architecture:** Keep all work on `integration/upstream-prs` in the approved linked worktree. Configure `upstream`, fetch every audited PR into a stable remote-tracking ref, merge official `dev`, then record source metadata and baseline evidence in a repository document. No open-PR product behavior is introduced in this batch.
 
-**Tech Stack:** Git, PowerShell, Markdown, Node 16.20.2, npm 8.19.4, Jest/CRACO, TypeScript 4.5, Java 17 runtime, Apache Maven 3.9.16.
+**Tech Stack:** Git, PowerShell, Markdown, Node 16.20.2, npm 8.19.4, Jest/CRACO, TypeScript 4.5, Azul Zulu OpenJDK 8u492-b09, Apache Maven 3.9.16.
 
 ---
 
@@ -15,7 +15,7 @@
 **Files:**
 - No repository files changed.
 
-- [ ] **Step 1: Verify the isolated branch is clean**
+- [x] **Step 1: Verify the isolated branch is clean**
 
 Run:
 
@@ -26,7 +26,7 @@ git branch --show-current
 
 Expected: clean status on `integration/upstream-prs`.
 
-- [ ] **Step 2: Add and validate the official remote**
+- [x] **Step 2: Add and validate the official remote**
 
 Run:
 
@@ -37,7 +37,7 @@ git remote get-url upstream
 
 Expected: `https://github.com/running-elephant/datart.git`.
 
-- [ ] **Step 3: Fetch official branches and all audited PR heads**
+- [x] **Step 3: Fetch official branches and all audited PR heads**
 
 Run:
 
@@ -52,7 +52,7 @@ foreach ($pr in $prs) {
 
 Expected: all 33 refs exist under `refs/remotes/upstream/pr/`.
 
-- [ ] **Step 4: Verify count and audited head SHAs**
+- [x] **Step 4: Verify count and audited head SHAs**
 
 Run:
 
@@ -70,7 +70,7 @@ Expected: exactly 33 refs. The head SHAs must match the source metadata written 
 - Modify through merge: `frontend/package-lock.json`
 - Modify through merge: `frontend/src/app/pages/DashBoardPage/actions/widgetAction.ts`
 
-- [ ] **Step 1: Verify official branch relationship**
+- [x] **Step 1: Verify official branch relationship**
 
 Run:
 
@@ -79,9 +79,9 @@ git log --left-right --cherry-pick --oneline upstream/master...upstream/dev
 git diff --stat upstream/master...upstream/dev
 ```
 
-Expected: `dev` contributes the dashboard null-safety change and lock-file integrity update described by the design.
+Expected: both tips contain the dashboard null-safety change; `dev` contributes its branch history and lock-file integrity update while `master` retains later security documentation.
 
-- [ ] **Step 2: Merge `upstream/dev` without flattening history**
+- [x] **Step 2: Merge `upstream/dev` without flattening history**
 
 Run:
 
@@ -91,7 +91,7 @@ git merge --no-ff upstream/dev -m "merge: sync official dev baseline"
 
 Expected: a merge commit with no unresolved conflicts.
 
-- [ ] **Step 3: Verify the functional delta**
+- [x] **Step 3: Verify the functional delta**
 
 Run:
 
@@ -100,14 +100,14 @@ git diff HEAD^1..HEAD -- frontend/src/app/pages/DashBoardPage/actions/widgetActi
 git diff --check HEAD^1..HEAD
 ```
 
-Expected: optional chaining is added to `dataChartMap[boardId]?.[datachartId]`; lock-file change is limited to the audited integrity update.
+Expected: optional chaining remains present in `dataChartMap[boardId]?.[datachartId]`; the merge's file delta is limited to the audited lock-file integrity update.
 
 ### Task 3: Create the Complete Disposition Ledger
 
 **Files:**
 - Create: `docs/upstream-prs/2026-07-28-disposition.md`
 
-- [ ] **Step 1: Create the ledger header and all 33 source rows**
+- [x] **Step 1: Create the ledger header and all 33 source rows**
 
 Create a Markdown document with this schema:
 
@@ -171,7 +171,7 @@ PR    Base    Disposition  Owner or delivery batch
 
 Use the actual fetched ref SHA for `Source SHA`. For accepted PRs, set `Integration commit` and `Verification` to `pending Batch N` with the mapped batch number. For absorbed PRs, name the owning PR. For rejected PRs, use `not applicable` and the rationale above.
 
-- [ ] **Step 2: Verify ledger completeness and source integrity**
+- [x] **Step 2: Verify ledger completeness and source integrity**
 
 Run:
 
@@ -195,7 +195,7 @@ Expected: 33 unique rows and every source SHA matches its fetched ref.
 **Files:**
 - Modify: `docs/upstream-prs/2026-07-28-disposition.md`
 
-- [ ] **Step 1: Install locked dependencies with the pinned runtime**
+- [x] **Step 1: Install locked dependencies with the pinned runtime**
 
 Run from `frontend`:
 
@@ -205,7 +205,7 @@ npx --yes -p node@16.20.2 -p npm@8.19.4 npm ci --legacy-peer-deps
 
 Expected: install succeeds without modifying `package.json` or `package-lock.json`.
 
-- [ ] **Step 2: Run TypeScript checking**
+- [x] **Step 2: Run TypeScript checking**
 
 Run:
 
@@ -215,7 +215,7 @@ npx --yes -p node@16.20.2 -p npm@8.19.4 npm run checkTs
 
 Expected: exit code 0.
 
-- [ ] **Step 3: Run the complete Jest baseline**
+- [x] **Step 3: Run the complete Jest baseline**
 
 Run:
 
@@ -225,7 +225,7 @@ npx --yes -p node@16.20.2 -p npm@8.19.4 npm run test -- --watchAll=false --runIn
 
 Expected: 83 suites pass, 651 tests pass, 5 tests skip, and 4 snapshots pass.
 
-- [ ] **Step 4: Run the production build**
+- [x] **Step 4: Run the production build**
 
 Run:
 
@@ -235,7 +235,7 @@ npx --yes -p node@16.20.2 -p npm@8.19.4 npm run build
 
 Expected: exit code 0 and no tracked build artifacts.
 
-- [ ] **Step 5: Record exact frontend evidence in the ledger**
+- [x] **Step 5: Record exact frontend evidence in the ledger**
 
 Add a `Batch 0 Baseline` section containing the runtime versions, commands, pass counts, build result, and the existing npm audit totals: 13 low, 118 moderate, 74 high, and 21 critical vulnerabilities.
 
@@ -245,7 +245,7 @@ Add a `Batch 0 Baseline` section containing the runtime versions, commands, pass
 - Modify: `docs/upstream-prs/2026-07-28-disposition.md`
 - No Maven binary is stored in the repository.
 
-- [ ] **Step 1: Install task-local Maven 3.9.16**
+- [x] **Step 1: Install task-local Java 8 and Maven 3.9.16**
 
 Run:
 
@@ -265,14 +265,17 @@ $env:Path = "$(Join-Path $mavenRoot "apache-maven-$mavenVersion\bin");$env:Path"
 mvn --version
 ```
 
+Use task-local Azul Zulu OpenJDK 8u492-b09 for this repository and expose Node
+16.20.2/npm 8.19.4 on `PATH` for Maven's embedded frontend build.
+
 Expected:
 
 ```text
 Apache Maven 3.9.16
-Java version: 17
+Java version: 1.8.0_492
 ```
 
-- [ ] **Step 2: Run all backend tests**
+- [x] **Step 2: Run all backend tests**
 
 Run from the repository root:
 
@@ -282,7 +285,7 @@ mvn test
 
 Expected: `BUILD SUCCESS` with zero test failures.
 
-- [ ] **Step 3: Run backend packaging**
+- [x] **Step 3: Run backend packaging**
 
 Run:
 
@@ -292,7 +295,7 @@ mvn -DskipTests package
 
 Expected: `BUILD SUCCESS` and no tracked artifacts.
 
-- [ ] **Step 4: Record exact backend evidence in the ledger**
+- [x] **Step 4: Record exact backend evidence in the ledger**
 
 Add Maven/Java versions, test summary, packaging result, and any baseline warnings under `Batch 0 Baseline`. If a baseline command fails, record the exact failure and resolve the environment or repository issue before adopting backend PR code.
 
@@ -301,7 +304,7 @@ Add Maven/Java versions, test summary, packaging result, and any baseline warnin
 **Files:**
 - Create: `docs/upstream-prs/2026-07-28-disposition.md`
 
-- [ ] **Step 1: Verify repository hygiene**
+- [x] **Step 1: Verify repository hygiene**
 
 Run:
 
@@ -313,7 +316,7 @@ rg -n 'TBD|TODO|FIXME|pending Batch 0' docs/upstream-prs/2026-07-28-disposition.
 
 Expected: no whitespace errors, no unexpected tracked files, and no unresolved Batch 0 placeholders.
 
-- [ ] **Step 2: Commit the ledger**
+- [x] **Step 2: Commit the ledger**
 
 Run:
 
@@ -324,7 +327,7 @@ git commit -m "docs: record official PR disposition baseline"
 
 Expected: one documentation commit after the official `dev` merge commit.
 
-- [ ] **Step 3: Verify Batch 0 final state**
+- [x] **Step 3: Verify Batch 0 final state**
 
 Run:
 

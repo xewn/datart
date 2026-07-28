@@ -61,10 +61,11 @@ The official repository will be configured as remote `upstream`:
 `https://github.com/running-elephant/datart.git`
 
 Before adopting open PRs, `upstream/dev` will be merged into the integration
-branch with a merge commit. At the audit snapshot, the net `dev` difference
-from official `master` is one dashboard null-safety change and one lock-file
-integrity update. Merging the branch history gives PRs that target `dev` their
-intended base while retaining later `master` commits.
+branch with a merge commit. At the audit snapshot, the dashboard null-safety
+change exists in both branch tips; the merge adds the `dev` history and its
+lock-file integrity update while retaining later `master` commits such as
+`SECURITY.md`. This gives PRs that target `dev` their intended history without
+discarding `master` changes.
 
 No PR integration commit is made directly in the main checkout. The completed
 integration branch is merged into local `master` only after all acceptance
@@ -231,9 +232,12 @@ npm run build
 
 ### Backend Runtime
 
-The repository targets Java 8 source compatibility. The machine has Java 17
-but no Maven executable. Before backend PR implementation, use a task-local
-Apache Maven 3.9.16 distribution so no system-wide installation is required.
+The repository requires a Java 8 runtime: in addition to targeting Java 8 source
+compatibility, it imports the JDK 8 Nashorn API and uses Lombok 1.18.18. The
+machine's Java 17 runtime cannot compile this baseline. Use task-local Azul Zulu
+OpenJDK 8u492-b09 and Apache Maven 3.9.16 distributions so no system-wide
+installation is required. Maven's frontend build hook must also receive the
+pinned Node 16.20.2 and npm 8.19.4 binaries on `PATH`.
 
 Establish and record the unmodified backend baseline with:
 
