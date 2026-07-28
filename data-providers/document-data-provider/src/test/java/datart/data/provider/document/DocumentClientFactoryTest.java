@@ -43,6 +43,25 @@ class DocumentClientFactoryTest {
         assertTrue(created.get(1).closed);
     }
 
+    @Test
+    void testsConnectionsWithoutCachingClients() {
+        List<FakeClient> created = new ArrayList<>();
+        DocumentClientFactory factory = new DocumentClientFactory(source -> {
+            FakeClient client = new FakeClient();
+            created.add(client);
+            return client;
+        });
+        DataProviderSource source = source(null, "mongodb://localhost/test");
+
+        factory.testConnection(source);
+        DocumentClient cached = factory.getClient(source);
+
+        assertTrue(created.get(0).closed);
+        assertNotSame(created.get(0), cached);
+        assertFalse(created.get(1).closed);
+        factory.close();
+    }
+
     private DataProviderSource source(String id, String url) {
         DataProviderSource source = new DataProviderSource();
         source.setSourceId(id);

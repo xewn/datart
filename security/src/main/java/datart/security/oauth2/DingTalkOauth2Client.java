@@ -24,10 +24,7 @@ import com.aliyun.dingtalkoauth2_1_0.models.GetUserTokenRequest;
 import com.aliyun.dingtalkoauth2_1_0.models.GetUserTokenResponse;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
-import datart.core.base.exception.Exceptions;
 import datart.core.common.Application;
-import datart.security.util.AESUtil;
-import datart.security.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -64,7 +61,7 @@ public class DingTalkOauth2Client extends AbstractCustomOauth2Client {
             uriBuilder.addParameter("scope", "openid");
             uriBuilder.addParameter("response_type", "code");
             uriBuilder.addParameter("client_id", getClientRegistration().getClientId());
-            uriBuilder.addParameter("state", AESUtil.encrypt(SecurityUtils.randomPassword(8)));
+            uriBuilder.addParameter("state", createState(request));
             uriBuilder.addParameter("redirect_uri", getRedirectUrl());
             response.sendRedirect(uriBuilder.build().toString());
         } catch (Exception e) {
@@ -91,13 +88,7 @@ public class DingTalkOauth2Client extends AbstractCustomOauth2Client {
     public OAuth2AuthenticationToken getUserInfo(HttpServletRequest request, HttpServletResponse response) {
         try {
             String authCode = request.getParameter("authCode");
-            String state = request.getParameter("state");
-
-            try {
-                AESUtil.decrypt(state);
-            } catch (Exception e) {
-                Exceptions.msg("Failed to verify the state parameter");
-            }
+            verifyAndConsumeState(request);
             String accessToken = getAccessToken(authCode);
             return getUserinfo(accessToken);
         } catch (Exception e) {

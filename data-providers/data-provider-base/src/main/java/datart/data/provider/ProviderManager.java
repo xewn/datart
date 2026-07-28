@@ -18,6 +18,7 @@
 
 package datart.data.provider;
 
+import com.alibaba.fastjson.JSON;
 import datart.core.base.exception.Exceptions;
 import datart.core.base.processor.ExtendProcessor;
 import datart.core.base.processor.ProcessorResponse;
@@ -136,7 +137,7 @@ public class ProviderManager extends DataProviderExecuteOptimizer implements Dat
 
         DataProvider dataProvider = getDataProviderService(source.getType());
 
-        String queryKey = dataProvider.getQueryKey(source, queryScript, param);
+        String queryKey = dataProvider.getQueryKey(source, queryScript, param) + calculationKey(param);
 
         if (param.isCacheEnable()) {
             dataframe = getFromCache(queryKey);
@@ -232,6 +233,30 @@ public class ProviderManager extends DataProviderExecuteOptimizer implements Dat
                 }
             });
         }
+    }
+
+    static String calculationKey(ExecuteParam param) {
+        if (param == null || CollectionUtils.isEmpty(param.getAggregators())) {
+            return ";calculations:[]";
+        }
+        return ";calculations:" + JSON.toJSONString(canonicalize(JSON.toJSON(param.getAggregators())));
+    }
+
+    private static Object canonicalize(Object value) {
+        if (value instanceof Map) {
+            Map<String, Object> sorted = new TreeMap<>();
+            ((Map<?, ?>) value).forEach((key, item) ->
+                    sorted.put(String.valueOf(key), canonicalize(item)));
+            return sorted;
+        }
+        if (value instanceof Collection) {
+            List<Object> items = new ArrayList<>();
+            for (Object item : (Collection<?>) value) {
+                items.add(canonicalize(item));
+            }
+            return items;
+        }
+        return value;
     }
 
     private boolean includesColumn(String columnKey, SelectColumn selectedColumn) {

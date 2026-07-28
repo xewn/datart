@@ -76,7 +76,8 @@ public class MsSqlStdOperatorSupport extends MssqlSqlDialect implements SqlStdOp
             }
             case AGG_DATE_WEEK: {
                 String columnName = call.getOperandList().get(0).toSqlString(this).getSql();
-                writer.print("CONCAT(YEAR("+columnName+"), '-', RIGHT(100+DATEPART(ww,"+columnName+"),2))");
+                writer.print("CONCAT(YEAR(DATEADD(day, 26-DATEPART(isowk," + columnName + "),"
+                        + columnName + ")), '-', RIGHT(100+DATEPART(isowk," + columnName + "),2))");
                 return true;
             }
             case AGG_DATE_DAY: {

@@ -45,7 +45,7 @@ class MongoDocumentClient implements DocumentClient {
     @Override
     public Dataframe execute(String command) {
         Document parsed = parseReadOnlyCommand(command);
-        return toDataframe(database.runCommand(parsed), command);
+        return toDataframe(readAllBatches(database, parsed), command);
     }
 
     @Override
@@ -60,6 +60,10 @@ class MongoDocumentClient implements DocumentClient {
         } catch (RuntimeException e) {
             throw new IllegalArgumentException("MongoDB command must be valid JSON", e);
         }
+        String firstKey = parsed.keySet().stream().findFirst().orElse(null);
+        if (!("find".equals(firstKey) || "aggregate".equals(firstKey))) {
+            throw new IllegalArgumentException("MongoDB command must start with find or aggregate");
+        }
         boolean find = parsed.get("find") instanceof String;
         boolean aggregate = parsed.get("aggregate") instanceof String;
         if (find == aggregate) {
@@ -69,6 +73,53 @@ class MongoDocumentClient implements DocumentClient {
             throw new IllegalArgumentException("MongoDB aggregate commands cannot contain $out or $merge");
         }
         return parsed;
+    }
+
+    static List<Document> readAllBatches(MongoDatabase database, Document command) {
+        Document response = database.runCommand(command);
+        Document cursor = response.get("cursor", Document.class);
+        if (cursor == null) {
+            return Collections.emptyList();
+        }
+        List<Document> documents = new ArrayList<>();
+        appendBatch(documents, cursor, "firstBatch");
+        long cursorId = cursorId(cursor);
+        String collection = String.valueOf(command.get(command.keySet().iterator().next()));
+        try {
+            while (cursorId != 0L) {
+                response = database.runCommand(new Document("getMore", cursorId)
+                        .append("collection", collection));
+                cursor = response.get("cursor", Document.class);
+                if (cursor == null) {
+                    throw new IllegalStateException("MongoDB getMore response is missing a cursor");
+                }
+                appendBatch(documents, cursor, "nextBatch");
+                cursorId = cursorId(cursor);
+            }
+        } catch (RuntimeException e) {
+            if (cursorId != 0L) {
+                try {
+                    database.runCommand(new Document("killCursors", collection)
+                            .append("cursors", Collections.singletonList(cursorId)));
+                } catch (RuntimeException ignored) {
+                    e.addSuppressed(ignored);
+                }
+            }
+            throw e;
+        }
+        return documents;
+    }
+
+    private static void appendBatch(List<Document> documents, Document cursor, String key) {
+        List<Document> batch = cursor.getList(key, Document.class);
+        if (batch != null) {
+            documents.addAll(batch);
+        }
+    }
+
+    private static long cursorId(Document cursor) {
+        Object value = cursor.get("id");
+        return value instanceof Number ? ((Number) value).longValue() : 0L;
     }
 
     private static boolean containsWriteStage(Object value) {
@@ -93,7 +144,10 @@ class MongoDocumentClient implements DocumentClient {
     }
 
     static Dataframe toDataframe(Document response, String script) {
-        List<Document> batch = firstBatch(response);
+        return toDataframe(firstBatch(response), script);
+    }
+
+    private static Dataframe toDataframe(List<Document> batch, String script) {
         LinkedHashMap<String, ValueType> columnTypes = new LinkedHashMap<>();
         for (Document row : batch) {
             for (Map.Entry<String, Object> entry : row.entrySet()) {

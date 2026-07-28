@@ -4,12 +4,16 @@ import datart.core.base.consts.ValueType;
 import datart.core.data.provider.Dataframe;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
+import com.mongodb.client.MongoDatabase;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class MongoDocumentClientTest {
 
@@ -56,8 +60,26 @@ class MongoDocumentClientTest {
                 () -> MongoDocumentClient.parseReadOnlyCommand("{\"drop\":\"people\"}"));
         assertThrows(IllegalArgumentException.class,
                 () -> MongoDocumentClient.parseReadOnlyCommand(
+                        "{\"drop\":\"people\",\"find\":\"people\"}"));
+        assertThrows(IllegalArgumentException.class,
+                () -> MongoDocumentClient.parseReadOnlyCommand(
                         "{\"aggregate\":\"people\",\"pipeline\":[{\"$out\":\"copy\"}],\"cursor\":{}}"));
         assertThrows(IllegalArgumentException.class,
                 () -> MongoDocumentClient.parseReadOnlyCommand("not-json"));
+    }
+
+    @Test
+    void drainsAllCursorBatches() {
+        MongoDatabase database = mock(MongoDatabase.class);
+        Document command = new Document("find", "people");
+        Document getMore = new Document("getMore", 42L).append("collection", "people");
+        when(database.runCommand(command)).thenReturn(new Document("cursor", new Document("id", 42L)
+                .append("firstBatch", Collections.singletonList(new Document("name", "Ada")))));
+        when(database.runCommand(getMore)).thenReturn(new Document("cursor", new Document("id", 0L)
+                .append("nextBatch", Collections.singletonList(new Document("name", "Grace")))));
+
+        assertEquals(Arrays.asList(new Document("name", "Ada"), new Document("name", "Grace")),
+                MongoDocumentClient.readAllBatches(database, command));
+        verify(database).runCommand(getMore);
     }
 }

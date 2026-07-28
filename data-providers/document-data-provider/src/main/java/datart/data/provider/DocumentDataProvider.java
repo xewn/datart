@@ -24,7 +24,7 @@ public class DocumentDataProvider extends DataProvider {
 
     @Override
     public Object test(DataProviderSource source) {
-        clients.getClient(source).ping();
+        clients.testConnection(source);
         return true;
     }
 

@@ -38,6 +38,16 @@ public class DocumentClientFactory implements AutoCloseable {
         return holder.client;
     }
 
+    public void testConnection(DataProviderSource source) {
+        validate(source);
+        DocumentClient client = clientCreator.create(source);
+        try {
+            client.ping();
+        } finally {
+            client.close();
+        }
+    }
+
     public void reset(DataProviderSource source) {
         if (source == null) {
             return;

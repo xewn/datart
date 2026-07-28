@@ -16,12 +16,11 @@
  * limitations under the License.
  */
 
-import { DatePicker, Radio, Select, Space } from 'antd';
+import { DatePicker, FormInstance, Radio, Select, Space } from 'antd';
 import { FormItemEx } from 'app/components';
 import {
   AdvanceCalcFieldActionType,
   ChartDataSectionType,
-  DateLevelType,
   DateLevelTypes,
   DateRatioType,
   DateRatioValueType,
@@ -44,32 +43,11 @@ import {
 } from 'react';
 import styled from 'styled-components/macro';
 import { getAllFieldsOfEachType } from '../../utils';
-
-type DateRatioSetting = {
-  column?: string[];
-  snippet?: string;
-  select?: string;
-  ratioType: DateRatioType;
-  valueType: DateRatioValueType;
-};
-
-const dateLevel = (snippet?: string) => {
-  const operator = DateLevelTypes.find(type => snippet?.startsWith(type));
-  switch (operator) {
-    case DateLevelType.AggDateYear:
-      return { picker: 'year' as const, format: 'YYYY' };
-    case DateLevelType.AggDateQuarter:
-      return { picker: 'quarter' as const, format: 'YYYY-Q' };
-    case DateLevelType.AggDateMonth:
-      return { picker: 'month' as const, format: 'YYYY-MM' };
-    case DateLevelType.AggDateWeek:
-      return { picker: 'week' as const, format: 'GGGG-WW' };
-    case DateLevelType.AggDateDay:
-      return { picker: 'date' as const, format: 'YYYY-MM-DD' };
-    default:
-      return undefined;
-  }
-};
+import {
+  dateLevel,
+  DateRatioSetting,
+  isDateRatioSettingValid,
+} from './dateRatio';
 
 const DateRatioAction: FC<{
   config: ChartDataSectionField;
@@ -77,7 +55,8 @@ const DateRatioAction: FC<{
     config: ChartDataSectionField,
     needRefresh?: boolean,
   ) => void;
-}> = ({ config, onConfigChange }) => {
+  form?: FormInstance;
+}> = ({ config, onConfigChange, form }) => {
   const t = useI18NPrefix('viz.palette.data.dateRatio');
   const { dataView, availableSourceFunctions } =
     useContext(ChartDataViewContext);
@@ -133,13 +112,17 @@ const DateRatioAction: FC<{
   );
 
   useEffect(() => {
-    onConfigChange(buildFieldConfig(initial), true);
-  }, [buildFieldConfig, initial, onConfigChange]);
+    if (isDateRatioSettingValid(hasDateDimension, initial)) {
+      onConfigChange(buildFieldConfig(initial), true);
+    }
+  }, [buildFieldConfig, hasDateDimension, initial, onConfigChange]);
 
   const updateSetting = (patch: Partial<DateRatioSetting>) => {
     const next = { ...setting, ...patch };
     setSetting(next);
-    onConfigChange(buildFieldConfig(next), true);
+    if (isDateRatioSettingValid(hasDateDimension, next)) {
+      onConfigChange(buildFieldConfig(next), true);
+    }
   };
 
   const selectedFieldIndex = Math.max(
@@ -170,6 +153,7 @@ const DateRatioAction: FC<{
               value={selectedFieldIndex}
               onChange={(index: number) => {
                 const field = dateFields[index];
+                form?.setFieldsValue({ dateRatioSelection: undefined });
                 updateSetting({
                   column: field.path,
                   snippet: field.children?.[0]?.expression,
@@ -187,12 +171,13 @@ const DateRatioAction: FC<{
           <FormItemEx label={t('dimension')}>
             <Radio.Group
               value={setting.snippet}
-              onChange={event =>
+              onChange={event => {
+                form?.setFieldsValue({ dateRatioSelection: undefined });
                 updateSetting({
                   snippet: event.target.value,
                   select: undefined,
-                })
-              }
+                });
+              }}
             >
               {selectedField.children?.map(field => (
                 <Radio key={field.expression} value={field.expression}>
@@ -201,9 +186,13 @@ const DateRatioAction: FC<{
               ))}
             </Radio.Group>
           </FormItemEx>
-          <FormItemEx label={t('select')}>
+          <FormItemEx
+            initialValue={pickerValue}
+            label={t('select')}
+            name="dateRatioSelection"
+            rules={[{ required: true }]}
+          >
             <DatePicker
-              value={pickerValue}
               format={picker?.format}
               picker={picker?.picker}
               disabled={!picker}
@@ -213,6 +202,15 @@ const DateRatioAction: FC<{
             />
           </FormItemEx>
         </>
+      )}
+      {!hasDateDimension && !selectedField && (
+        <FormItemEx
+          hidden
+          name="dateRatioSelection"
+          rules={[{ required: true }]}
+        >
+          <input />
+        </FormItemEx>
       )}
       <FormItemEx label={t('ratioType')}>
         <Radio.Group

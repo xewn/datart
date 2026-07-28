@@ -2,10 +2,7 @@ package datart.security.oauth2;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import datart.core.base.exception.Exceptions;
 import datart.core.common.Application;
-import datart.security.util.AESUtil;
-import datart.security.util.SecurityUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -30,7 +27,6 @@ public class WeChatOauth2Client extends AbstractCustomOauth2Client {
     private static final String AUTHORIZATION_URI = "https://open.weixin.qq.com/connect/qrconnect";
     private static final String TOKEN_URI = "https://api.weixin.qq.com/sns/oauth2/access_token";
     private static final String USER_INFO_URI = "https://api.weixin.qq.com/sns/userinfo";
-    private static final String REDIRECT_URI = "/login/oauth2/code/" + REGISTRATION_ID;
 
     @Override
     public String getRegistrationId() {
@@ -45,7 +41,7 @@ public class WeChatOauth2Client extends AbstractCustomOauth2Client {
                     .addParameter("response_type", "code")
                     .addParameter("lang", "cn")
                     .addParameter("appid", getClientRegistration().getClientId())
-                    .addParameter("state", AESUtil.encrypt(SecurityUtils.randomPassword(8)))
+                    .addParameter("state", createState(request))
                     .addParameter("redirect_uri", getRedirectUrl());
             response.sendRedirect(uri.build().toString());
         } catch (Exception e) {
@@ -56,11 +52,7 @@ public class WeChatOauth2Client extends AbstractCustomOauth2Client {
     @Override
     public Authentication getUserInfo(HttpServletRequest request, HttpServletResponse response) {
         try {
-            try {
-                AESUtil.decrypt(request.getParameter("state"));
-            } catch (Exception e) {
-                Exceptions.msg("Failed to verify the state parameter");
-            }
+            verifyAndConsumeState(request);
             JSONObject token = getJson(TOKEN_URI, new URIBuilder(TOKEN_URI)
                     .addParameter("grant_type", "authorization_code")
                     .addParameter("appid", getClientRegistration().getClientId())
@@ -77,7 +69,7 @@ public class WeChatOauth2Client extends AbstractCustomOauth2Client {
             attributes.put(EMAIL, user.getString("unionid"));
             attributes.put(AVATAR, user.getString("headimgurl"));
             DefaultOAuth2User principal = new DefaultOAuth2User(Collections.emptyList(), attributes, NAME);
-            return new OAuth2AuthenticationToken(principal, Collections.emptyList(), REGISTRATION_ID);
+            return new OAuth2AuthenticationToken(principal, Collections.emptyList(), getRegistrationId());
         } catch (Exception e) {
             throw new AuthenticationServiceException("WeChat authentication failed", e);
         }
@@ -85,25 +77,32 @@ public class WeChatOauth2Client extends AbstractCustomOauth2Client {
 
     @Override
     public void addClientRegistration(OAuth2ClientProperties properties) {
-        if (properties == null || !properties.getRegistration().containsKey(REGISTRATION_ID)) {
+        String registrationId = getRegistrationId();
+        if (properties == null || !properties.getRegistration().containsKey(registrationId)) {
             return;
         }
         OAuth2ClientProperties.Provider provider = new OAuth2ClientProperties.Provider();
         provider.setAuthorizationUri(AUTHORIZATION_URI);
         provider.setTokenUri(TOKEN_URI);
         provider.setUserInfoUri(USER_INFO_URI);
-        properties.getProvider().put(REGISTRATION_ID, provider);
-        OAuth2ClientProperties.Registration registration = properties.getRegistration().get(REGISTRATION_ID);
+        properties.getProvider().put(registrationId, provider);
+        OAuth2ClientProperties.Registration registration = properties.getRegistration().get(registrationId);
         registration.setAuthorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
-        registration.setRedirectUri(REDIRECT_URI);
+        registration.setRedirectUri(redirectUri());
     }
 
     private String getRedirectUrl() {
-        String url = Application.getProperty("spring.security.oauth2.client.registration.wechat.call-back-url");
+        String registrationId = getRegistrationId();
+        String url = Application.getProperty("spring.security.oauth2.client.registration."
+                + registrationId + ".call-back-url");
         if (StringUtils.isBlank(url)) {
             url = Application.getServerPrefix();
         }
-        return StringUtils.removeEnd(url, "/") + REDIRECT_URI;
+        return StringUtils.removeEnd(url, "/") + redirectUri();
+    }
+
+    private String redirectUri() {
+        return "/login/oauth2/code/" + getRegistrationId();
     }
 
     private JSONObject getJson(String endpoint, URIBuilder uri) throws Exception {

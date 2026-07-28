@@ -49,7 +49,8 @@ class CustomOAuth2ClientFactoryTest {
 
         assertTrue(factory.registrationIds().contains("dingtalk"));
         assertTrue(factory.registrationIds().contains("wechat"));
-        assertEquals(2, factory.registrationIds().size());
+        assertTrue(factory.registrationIds().contains("wechart"));
+        assertEquals(3, factory.registrationIds().size());
     }
 
     @Test
@@ -66,6 +67,21 @@ class CustomOAuth2ClientFactoryTest {
         assertTrue(CustomOAuth2ClientFactory.getInstance().findConfigured("dingtalk").isPresent());
         assertFalse(CustomOAuth2ClientFactory.getInstance().findConfigured("wechat").isPresent());
         assertEquals("client", repository.findByRegistrationId("dingtalk").getClientId());
+    }
+
+    @Test
+    void repositorySupportsLegacyWechartRegistration() {
+        OAuth2ClientProperties properties = new OAuth2ClientProperties();
+        OAuth2ClientProperties.Registration registration = new OAuth2ClientProperties.Registration();
+        registration.setClientId("legacy-client");
+        registration.setClientSecret("secret");
+        properties.getRegistration().put("wechart", registration);
+        ClientRegistrationRepositoryImpl repository = new ClientRegistrationRepositoryImpl();
+
+        repository.setOAuth2ClientProperties(properties);
+
+        assertTrue(CustomOAuth2ClientFactory.getInstance().findConfigured("wechart").isPresent());
+        assertEquals("legacy-client", repository.findByRegistrationId("wechart").getClientId());
     }
 
     static ClientRegistration registration(String id) {

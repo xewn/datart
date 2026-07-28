@@ -18,6 +18,7 @@ public abstract class AbstractCustomOauth2Client {
 
     private volatile HttpClient httpClient;
     private volatile ClientRegistration clientRegistration;
+    private final OAuth2StateRepository stateRepository = new OAuth2StateRepository();
 
     public abstract String getRegistrationId();
 
@@ -55,5 +56,13 @@ public abstract class AbstractCustomOauth2Client {
             }
         }
         return client;
+    }
+
+    protected final String createState(HttpServletRequest request) {
+        return stateRepository.create(request, getRegistrationId());
+    }
+
+    protected final void verifyAndConsumeState(HttpServletRequest request) {
+        stateRepository.consume(request, getRegistrationId());
     }
 }

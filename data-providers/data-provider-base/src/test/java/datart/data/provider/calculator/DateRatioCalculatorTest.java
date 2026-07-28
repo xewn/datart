@@ -1,6 +1,7 @@
 package datart.data.provider.calculator;
 
 import datart.core.base.consts.ValueType;
+import datart.core.base.PageInfo;
 import datart.core.data.provider.Column;
 import datart.core.data.provider.DataProvider;
 import datart.core.data.provider.Dataframe;
@@ -64,6 +65,32 @@ class DateRatioCalculatorTest {
     }
 
     @Test
+    void loadsUnpagedHistoryWhenPreviousPeriodIsOutsideCurrentPage() throws Exception {
+        AggregateOperator aggregate = aggregate("SUM(amount)-ratio", "last", "percent");
+        ExecuteParam param = executeParam(aggregate);
+        param.setPageInfo(PageInfo.builder().pageNo(2).pageSize(1).countTotal(true).total(2).build());
+        Dataframe page = dataframe(Collections.singletonList(row("east", "2024-2", 150)));
+        DataProvider provider = mock(DataProvider.class);
+        List<ExecuteParam> requests = new ArrayList<>();
+        when(provider.execute(isNull(), isNull(), any(ExecuteParam.class))).thenAnswer(invocation -> {
+            requests.add(invocation.getArgument(2));
+            return dataframe("SUM(amount)-ratio", Arrays.asList(
+                    row("east", "2024-1", 100),
+                    row("east", "2024-2", 150)));
+        });
+
+        new DateRatioCalculator().calculate(page, aggregate, param, null, null, provider);
+
+        assertEquals(0.5d, page.getRows().get(0).get(2));
+        assertEquals(1, requests.size());
+        assertEquals(1, requests.get(0).getPageInfo().getPageNo());
+        assertEquals(Integer.MAX_VALUE, requests.get(0).getPageInfo().getPageSize());
+        assertEquals(false, requests.get(0).getPageInfo().isCountTotal());
+        assertEquals(2, param.getPageInfo().getPageNo());
+        assertEquals(2, param.getPageInfo().getTotal());
+    }
+
+    @Test
     void queriesSelectedAndPreviousPeriodsWithoutMutatingOriginalFilters() throws Exception {
         AggregateOperator aggregate = aggregate("SUM(amount)-selected", "last", "percent");
         Map<String, Object> config = config(aggregate);
@@ -80,6 +107,7 @@ class DateRatioCalculatorTest {
                 new SingleTypedValue("2024-02-15", ValueType.DATE)
         });
         param.setFilters(Collections.singletonList(originalFilter));
+        param.setPageInfo(PageInfo.builder().pageNo(3).pageSize(10).countTotal(true).total(77).build());
 
         DataProvider provider = mock(DataProvider.class);
         List<ExecuteParam> requests = new ArrayList<>();
@@ -103,6 +131,12 @@ class DateRatioCalculatorTest {
         assertNotSame(param.getFilters(), requests.get(0).getFilters());
         assertEquals(2, requests.get(0).getFilters().size());
         assertEquals(2, requests.get(1).getFilters().size());
+        assertNotSame(param.getPageInfo(), requests.get(0).getPageInfo());
+        assertEquals(1, requests.get(0).getPageInfo().getPageNo());
+        assertEquals(Integer.MAX_VALUE, requests.get(0).getPageInfo().getPageSize());
+        assertEquals(false, requests.get(0).getPageInfo().isCountTotal());
+        assertEquals(3, param.getPageInfo().getPageNo());
+        assertEquals(77, param.getPageInfo().getTotal());
     }
 
     @Test

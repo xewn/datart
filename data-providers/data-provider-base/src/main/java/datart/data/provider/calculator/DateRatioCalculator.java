@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import datart.core.base.consts.ValueType;
+import datart.core.base.PageInfo;
 import datart.core.data.provider.Column;
 import datart.core.data.provider.DataProvider;
 import datart.core.data.provider.DataProviderSource;
@@ -62,7 +63,7 @@ public class DateRatioCalculator extends AbstractCalculator {
         }
         dataframe.getColumns().get(dataIndex).setCalc(aggregate.getCalc());
         if (StringUtils.isBlank(config.select)) {
-            calculateFromCurrentFrame(dataframe, dataIndex, executeParam, config);
+            calculateFromCurrentFrame(dataframe, dataIndex, executeParam, source, queryScript, dataProvider, config);
         } else {
             calculateSelectedPeriod(dataframe, dataIndex, aggregate, executeParam,
                     source, queryScript, dataProvider, config);
@@ -72,26 +73,47 @@ public class DateRatioCalculator extends AbstractCalculator {
     private void calculateFromCurrentFrame(Dataframe dataframe,
                                            int dataIndex,
                                            ExecuteParam executeParam,
+                                           DataProviderSource source,
+                                           QueryScript queryScript,
+                                           DataProvider dataProvider,
                                            DateRatioConfig config) {
         DateField dateField = findDateField(executeParam, dataframe);
         if (dateField == null) {
             clearColumn(dataframe, dataIndex);
             return;
         }
-        List<Integer> dimensionIndexes = dimensionIndexes(executeParam, dataframe, dateField.columnIndex);
+        Dataframe reference = dataframe;
+        if (dataProvider != null) {
+            try {
+                reference = dataProvider.execute(source, queryScript, unpagedCopy(executeParam));
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to load period comparison history", e);
+            }
+        }
+        int referenceDataIndex = findColumnIndex(reference,
+                dataframe.getColumns().get(dataIndex).columnKey());
+        DateField referenceDateField = findDateField(executeParam, reference);
+        if (referenceDataIndex < 0 || referenceDateField == null) {
+            clearColumn(dataframe, dataIndex);
+            return;
+        }
+        List<Integer> referenceDimensionIndexes = dimensionIndexes(executeParam, reference,
+                referenceDateField.columnIndex);
+        List<Integer> outputDimensionIndexes = dimensionIndexes(executeParam, dataframe,
+                dateField.columnIndex);
         Map<HistoryKey, BigDecimal> history = new HashMap<>();
-        for (List<Object> row : dataframe.getRows()) {
-            BigDecimal value = decimal(row.get(dataIndex));
-            String period = normalizePeriod(row.get(dateField.columnIndex), dateField.level);
+        for (List<Object> row : reference.getRows()) {
+            BigDecimal value = decimal(row.get(referenceDataIndex));
+            String period = normalizePeriod(row.get(referenceDateField.columnIndex), referenceDateField.level);
             if (value != null && period != null) {
-                history.put(new HistoryKey(dimensions(row, dimensionIndexes), period), value);
+                history.put(new HistoryKey(dimensions(row, referenceDimensionIndexes), period), value);
             }
         }
         for (List<Object> row : dataframe.getRows()) {
             BigDecimal current = decimal(row.get(dataIndex));
             String period = normalizePeriod(row.get(dateField.columnIndex), dateField.level);
             BigDecimal previous = period == null ? null : history.get(new HistoryKey(
-                    dimensions(row, dimensionIndexes), DatePeriod.parse(period, dateField.level)
+                    dimensions(row, outputDimensionIndexes), DatePeriod.parse(period, dateField.level)
                             .previous(config.ratioType).label()));
             row.set(dataIndex, calculateValue(current, previous, config.valueType));
         }
@@ -131,7 +153,7 @@ public class DateRatioCalculator extends AbstractCalculator {
                                     ExecuteParam original,
                                     String[] dateColumn,
                                     DatePeriod period) throws Exception {
-        ExecuteParam copy = copy(original);
+        ExecuteParam copy = unpagedCopy(original);
         String dateColumnKey = String.join(".", dateColumn);
         copy.getFilters().removeIf(filter -> dateColumnKey.equals(filter.getColumnKey()));
         copy.getFilters().add(boundFilter(dateColumn, FilterOperator.SqlOperator.GTE, period.start));
@@ -158,12 +180,35 @@ public class DateRatioCalculator extends AbstractCalculator {
         copy.setFunctionColumns(list(original.getFunctionColumns()));
         copy.setIncludeColumns(original.getIncludeColumns() == null
                 ? null : new HashSet<>(original.getIncludeColumns()));
-        copy.setPageInfo(original.getPageInfo());
+        copy.setPageInfo(copyPageInfo(original.getPageInfo()));
         copy.setServerAggregate(original.isServerAggregate());
         copy.setConcurrencyOptimize(false);
         copy.setCacheEnable(false);
         copy.setCacheExpires(original.getCacheExpires());
         return copy;
+    }
+
+    private ExecuteParam unpagedCopy(ExecuteParam original) {
+        ExecuteParam copy = copy(original);
+        copy.setOrders(new ArrayList<>());
+        copy.setPageInfo(PageInfo.builder()
+                .pageNo(1)
+                .pageSize(Integer.MAX_VALUE)
+                .countTotal(false)
+                .build());
+        return copy;
+    }
+
+    private PageInfo copyPageInfo(PageInfo pageInfo) {
+        if (pageInfo == null) {
+            return null;
+        }
+        return PageInfo.builder()
+                .pageNo(pageInfo.getPageNo())
+                .pageSize(pageInfo.getPageSize())
+                .total(pageInfo.getTotal())
+                .countTotal(pageInfo.isCountTotal())
+                .build();
     }
 
     private <T> List<T> list(List<T> values) {
@@ -397,7 +442,9 @@ public class DateRatioCalculator extends AbstractCalculator {
                         return new DatePeriod(level, LocalDate.of(Integer.parseInt(quarter[0]),
                                 (quarterNumber - 1) * 3 + 1, 1));
                     case MONTH:
-                        return new DatePeriod(level, YearMonth.parse(value).atDay(1));
+                        String[] month = value.split("-");
+                        return new DatePeriod(level, LocalDate.of(Integer.parseInt(month[0]),
+                                Integer.parseInt(month[1]), 1));
                     case WEEK:
                         String[] week = value.split("-");
                         int weekYear = Integer.parseInt(week[0]);
@@ -407,7 +454,9 @@ public class DateRatioCalculator extends AbstractCalculator {
                                 .with(ISO_WEEK.dayOfWeek(), DayOfWeek.MONDAY.getValue());
                         return new DatePeriod(level, weekStart);
                     case DAY:
-                        return new DatePeriod(level, LocalDate.parse(value));
+                        String[] day = value.split("-");
+                        return new DatePeriod(level, LocalDate.of(Integer.parseInt(day[0]),
+                                Integer.parseInt(day[1]), Integer.parseInt(day[2])));
                     default:
                         throw new IllegalArgumentException("Unsupported date level");
                 }
