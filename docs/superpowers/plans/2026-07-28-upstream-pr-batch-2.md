@@ -197,22 +197,22 @@ Commit as `test: cover recommended month and year ranges`.
 - Modify: `docs/upstream-prs/2026-07-28-disposition.md`
 - Modify: `docs/superpowers/plans/2026-07-28-upstream-pr-batch-2.md`
 
-- [ ] **Step 1: Run all focused Batch 2 tests together**
+- [x] **Step 1: Run all focused Batch 2 tests together**
 
 Run the eight touched/new Jest files in one `--runTestsByPath` command under Node 16. Expected: zero failures and zero errors.
 
-- [ ] **Step 2: Run frontend gates**
+- [x] **Step 2: Run frontend gates**
 
 Run `npm run checkTs`, the full non-watch Jest suite with the relative `testMatch` override, and `npm run build:all`. Expected: TypeScript, all suites, the Rollup task bundle, and the production React build succeed.
 
-- [ ] **Step 3: Run repository gates**
+- [x] **Step 3: Run repository gates**
 
 Run `& $mvn test` and `& $mvn -o -DskipTests package` with Java 8 and Node 16. Expected: all 9 Reactor modules succeed and the install ZIP is regenerated.
 
-- [ ] **Step 4: Update all Batch 2 ledger rows**
+- [x] **Step 4: Update all Batch 2 ledger rows**
 
 Replace pending entries for #2368, #2350, #2346, #2313, #2198, #2196, and #2089 with exact commits and gate evidence. Point absorbed #2366, #2330, and #2309 to the #2350 date integration commit and record their focused coverage.
 
-- [ ] **Step 5: Verify and commit Batch 2 evidence**
+- [x] **Step 5: Verify and commit Batch 2 evidence**
 
 Restore only known generated `frontend/package-lock.json` drift, run `git diff --check`, verify no Batch 2 table row remains pending, verify no plan checkbox remains open, record final suite totals and ZIP SHA-256, and commit as `docs: record Batch 2 PR integrations`.
