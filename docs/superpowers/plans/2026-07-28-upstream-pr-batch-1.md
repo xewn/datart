@@ -53,7 +53,7 @@ Run the command from Step 2; expect all `CSVParseTest` cases to pass. Commit the
 - Create: `data-providers/jdbc-data-provider/src/test/java/datart/data/provider/jdbc/DataSourceFactoryDruidImplTest.java`
 - Cherry-pick: `fe0e8c8e5b3b7a30fa03aeadd5a757665d3d825e`
 
-- [ ] **Step 1: Write the failing factory test**
+- [x] **Step 1: Write the failing factory test**
 
 Construct `JdbcProperties` with the H2 driver and an in-memory URL, create the Druid datasource, and assert:
 
@@ -64,11 +64,11 @@ assertEquals(3, dataSource.getConnectionErrorRetryAttempts());
 
 Close the datasource in `finally`.
 
-- [ ] **Step 2: Verify red, apply upstream, verify green**
+- [x] **Step 2: Verify red, apply upstream, verify green**
 
 Run `& $mvn -pl data-providers/jdbc-data-provider -am -Dtest=DataSourceFactoryDruidImplTest -Dsurefire.failIfNoSpecifiedTests=false test`; expect the baseline assertions to fail. Preserve the test, cherry-pick `refs/remotes/upstream/pr/2360`, restore it, and rerun expecting PASS.
 
-- [ ] **Step 3: Commit the regression test**
+- [x] **Step 3: Commit the regression test**
 
 Commit as `test: cover Druid recovery defaults`.
 
